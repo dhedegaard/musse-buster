@@ -11,7 +11,7 @@ interface Props {
 export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
   const handleClick = useCallback(() => {
     useGameStore.getState().clickBubble(bubble.key)
-  }, [])
+  }, [bubble.key])
 
   const x = bubble.x
   const y = useMemo(() => BOARD_HEIGHT - bubble.y - 1, [bubble.y])
