@@ -14,5 +14,10 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [require('daisyui')],
+  /** @type {import('daisyui').Config} */
+  daisyui: {
+    themes: ['light'],
+    logs: false,
+  },
 }

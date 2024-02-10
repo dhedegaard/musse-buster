@@ -1,5 +1,6 @@
 'use client'
 
+import { ArrowPathIcon, PauseIcon, PlayIcon } from '@heroicons/react/16/solid'
 import { ReactNode, memo, useEffect } from 'react'
 import { match } from 'ts-pattern'
 import { useShallow } from 'zustand/react/shallow'
@@ -69,6 +70,33 @@ export const Board = memo(function Board() {
 
   return (
     <main className="box-border mx-auto my-4 flex flex-col gap-4 items-stretch h-[calc(100vh-64px)] w-[60vh] relative">
+      <div className="absolute left-full top-0 m-4 flex flex-col gap-2 items-start w-full">
+        <button
+          type="button"
+          onClick={togglePause}
+          disabled={gameState === 'game-over'}
+          className="btn btn-primary btn-sm text-white whitespace-nowrap flex items-center gap-1"
+        >
+          {gameState === 'paused' ? (
+            <>
+              <PlayIcon width={16} /> <div>Resume (P)</div>
+            </>
+          ) : (
+            <>
+              <PauseIcon width={16} /> <div>Pause (P)</div>
+            </>
+          )}
+        </button>
+        <button
+          type="button"
+          onClick={reset}
+          className="btn btn-primary btn-sm text-white whitespace-nowrap flex items-center gap-1"
+        >
+          <ArrowPathIcon width={16} />
+          <div>Reset (R)</div>
+        </button>
+      </div>
+
       {gameState !== 'running' && (
         <button
           type="button"

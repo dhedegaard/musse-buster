@@ -18,9 +18,9 @@ interface GameStore {
   togglePause: () => void
 }
 
-const INITIAL_TICK_RATE = 5_200
-
+const INITIAL_TICK_RATE = 5_200 as const
 const now = Date.now()
+
 export const useGameStore = create<GameStore>()((set, get) => ({
   prevTickTime: now,
   nextTickTime: now + INITIAL_TICK_RATE,
@@ -135,6 +135,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     })
   },
   reset() {
+    const now = Date.now()
     set({
       prevTickTime: now,
       nextTickTime: now + INITIAL_TICK_RATE,
