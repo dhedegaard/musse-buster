@@ -1,49 +1,42 @@
-import clsx from 'clsx'
-import { CSSProperties, memo, useEffect, useMemo, useState, useTransition } from 'react'
+import { memo, useEffect, useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useGameStore } from '../stores/game-store'
 
+const keyframe: Keyframe[] = [{ width: '0%' }, { width: '100%' }]
 export const BottomBar = memo(function BottomBar() {
+  const ref = useRef<HTMLDivElement>(null)
+
   const prevTickTime = useGameStore(useShallow((state) => state.prevTickTime))
   const nextTickTime = useGameStore(useShallow((state) => state.nextTickTime))
   const addBubbleLine = useGameStore(useShallow((state) => state.addBubbleLine))
 
-  const [, startTransition] = useTransition()
-  const [percentage, setPercentage] = useState(0)
   useEffect(() => {
-    const frameCallback = () => {
-      const now = Date.now()
-      const newRawPercentage = Math.max(
-        0,
-        Math.min(100, ((now - prevTickTime) / (nextTickTime - prevTickTime)) * 100)
-      )
-      const newPercentage = Math.round(newRawPercentage * 1) / 1
-      startTransition(() => {
-        setPercentage(newPercentage)
-      })
-      rafHandle = requestAnimationFrame(frameCallback)
+    const div = ref.current
+    if (div == null) {
+      return
     }
-    let rafHandle: number = requestAnimationFrame(frameCallback)
+    const duration = nextTickTime - prevTickTime
+    const animateHandle = div.animate(keyframe, {
+      duration,
+      easing: 'linear',
+    })
+    const percent = (Date.now() - prevTickTime) / (nextTickTime - prevTickTime)
+    animateHandle.currentTime = duration * percent
     return () => {
-      cancelAnimationFrame(rafHandle)
+      animateHandle.cancel()
     }
-  }, [nextTickTime, prevTickTime])
-  const styleObj = useMemo<CSSProperties>(
-    // @ts-expect-error - css variable
-    () => ({ '--percentage': `${percentage}%` }),
-    [percentage]
-  )
+  }, [prevTickTime, nextTickTime])
 
   return (
-    <div
-      role="button"
+    <button
+      type="button"
       onClick={addBubbleLine}
-      className={clsx(
-        'box-border flex-none w-full h-[6vh] border-2 border-solid border-slate-700 hover:border-slate-950 relative cursor-pointer',
-        'before:bg-sky-500 before:absolute before:top-0 before:bottom-0 before:left-0 before:w-[var(--percentage)]'
-      )}
-      tabIndex={0}
-      style={styleObj}
-    />
+      className="box-border flex-none w-full h-[6vh] border-2 border-solid border-slate-700 hover:border-slate-950 relative cursor-pointer"
+    >
+      <div
+        ref={ref}
+        className="bg-sky-500 absolute top-0 bottom-0 left-0 w-0 pointer-events-none transform-gpu"
+      />
+    </button>
   )
 })
