@@ -162,6 +162,7 @@ export const useGameStore = create<GameStore>()(
               tickRate: INITIAL_TICK_RATE,
               bubbles: [],
               gameState: 'running',
+              currentScore: 0,
             },
             undefined,
             'reset'
