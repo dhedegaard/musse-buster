@@ -4,13 +4,14 @@ import { devtools, persist } from 'zustand/middleware'
 import { Bubble, bubbleSchema } from '../models/bubble'
 import { colorSchema } from '../models/color'
 import { BOARD_HEIGHT, BOARD_WIDTH } from '../models/consts'
+import { Game } from '../models/game'
 
 interface GameStore {
   prevTickTime: number
   nextTickTime: number
   tickRate: number
   gameState: 'main-menu' | 'running' | 'game-over' | 'paused'
-  currentScore: number
+  currentGame: Game
 
   bubbles: Bubble[]
 
@@ -32,7 +33,11 @@ export const useGameStore = create<GameStore>()(
         tickRate: INITIAL_TICK_RATE,
         bubbles: [],
         gameState: 'main-menu',
-        currentScore: 0,
+        currentGame: {
+          key: crypto.randomUUID(),
+          score: 0,
+          startedAt: new Date().toISOString(),
+        },
 
         addBubbleLine() {
           const newBubbles = [...new Array<unknown>(BOARD_WIDTH)].map<Bubble>((_, x) => {
@@ -111,7 +116,10 @@ export const useGameStore = create<GameStore>()(
               changed = true
               return {
                 bubbles: state.bubbles.filter((b) => !seenKeys.has(b.key)),
-                currentScore: state.currentScore + seenKeys.size,
+                currentGame: {
+                  ...state.currentGame,
+                  score: state.currentGame.score + seenKeys.size,
+                },
               }
             },
             undefined,
@@ -162,7 +170,11 @@ export const useGameStore = create<GameStore>()(
               tickRate: INITIAL_TICK_RATE,
               bubbles: [],
               gameState: 'running',
-              currentScore: 0,
+              currentGame: {
+                key: crypto.randomUUID(),
+                score: 0,
+                startedAt: new Date().toISOString(),
+              },
             },
             undefined,
             'reset'
