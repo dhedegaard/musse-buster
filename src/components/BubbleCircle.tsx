@@ -13,8 +13,8 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
     useCircles.getState().clickBubble(bubble.key)
   }, [])
 
-  const x = useMemo(() => bubble.x, [])
-  const y = useMemo(() => BOARD_HEIGHT - bubble.y - 1, [])
+  const x = bubble.x
+  const y = useMemo(() => BOARD_HEIGHT - bubble.y - 1, [bubble.y])
 
   return (
     <>

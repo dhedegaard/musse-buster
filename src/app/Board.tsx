@@ -6,13 +6,19 @@ import { BubbleCircle } from '../components/BubbleCircle'
 import { BOARD_HEIGHT, BOARD_WIDTH } from '../models/consts'
 import { useCircles } from '../stores/circles'
 
+// TODO: Make it variable and increase with the level.
+const TICK_TIME = 5_200 as const
+
 export const Board = memo(function Board() {
   const bubbles = useCircles(useShallow((state) => state.bubbles))
   const addBubbleLine = useCircles(useShallow((state) => state.addBubbleLine))
 
   useEffect(() => {
     // TODO: Replace with a RAF, and the interval should be dynamic with a "level".
-    const intervalHandle = setInterval(() => addBubbleLine(), 5_200)
+    const intervalHandle = setInterval(() => {
+      console.log('TICK!')
+      addBubbleLine()
+    }, TICK_TIME)
     return () => clearInterval(intervalHandle)
   }, [addBubbleLine])
 

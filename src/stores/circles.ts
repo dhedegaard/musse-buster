@@ -11,27 +11,21 @@ interface CirclesStore {
   applyGravity: () => void
 }
 
-const generateBubbleRow = () => {
-  const newBubbles: Bubble[] = [...new Array(BOARD_WIDTH)].map<Bubble>((_, x) => {
-    const colorIndex = Math.floor(Math.random() * colorSchema.options.length)
-    const color = colorSchema.options[colorIndex]
-    const newBubble: Bubble = {
-      key: crypto.randomUUID(),
-      x,
-      y: 0,
-      color,
-    }
-    return bubbleSchema.parse(newBubble)
-  })
-
-  return newBubbles
-}
-
 export const useCircles = create<CirclesStore>()((set, get) => ({
   bubbles: [],
 
   addBubbleLine() {
-    const newBubbles: Bubble[] = generateBubbleRow()
+    const newBubbles = [...new Array(BOARD_WIDTH)].map<Bubble>((_, x) => {
+      const colorIndex = Math.floor(Math.random() * colorSchema.options.length)
+      const color = colorSchema.options[colorIndex]
+      const newBubble: Bubble = {
+        key: crypto.randomUUID(),
+        x,
+        y: 0,
+        color,
+      }
+      return bubbleSchema.parse(newBubble)
+    })
     set((state) => ({
       bubbles: [
         ...newBubbles,
