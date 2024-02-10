@@ -1,18 +1,20 @@
 import { create } from 'zustand'
 import { Bubble, bubbleSchema } from '../models/bubble'
 import { colorSchema } from '../models/color'
-import { BOARD_WIDTH } from '../models/consts'
+import { BOARD_HEIGHT, BOARD_WIDTH } from '../models/consts'
 
 interface GameStore {
   prevTickTime: number
   nextTickTime: number
   tickRate: number
+  gameState: 'running' | 'game-over'
 
   bubbles: Bubble[]
 
   addBubbleLine: () => void
   clickBubble: (key: string) => void
   applyGravity: () => void
+  reset: () => void
 }
 
 const INITIAL_TICK_RATE = 5_200
@@ -23,6 +25,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   nextTickTime: now + INITIAL_TICK_RATE,
   tickRate: INITIAL_TICK_RATE,
   bubbles: [],
+  gameState: 'running',
 
   addBubbleLine() {
     const newBubbles = [...new Array<unknown>(BOARD_WIDTH)].map<Bubble>((_, x) => {
@@ -41,23 +44,30 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       return bubbleSchema.parse(newBubble)
     })
     const now = Date.now()
-    set((state) => ({
-      prevTickTime: now,
-      nextTickTime: now + state.tickRate,
-      bubbles: [
-        ...newBubbles,
-        ...state.bubbles.map((oldBubble) => {
-          const newBubble: Bubble = {
-            key: oldBubble.key,
-            x: oldBubble.x,
-            y: oldBubble.y + 1,
-            color: oldBubble.color,
-            animation: 'pushed-up',
-          }
-          return bubbleSchema.parse(newBubble)
-        }),
-      ],
-    }))
+    set((state) => {
+      if (state.bubbles.some((b) => b.y + 1 >= BOARD_HEIGHT)) {
+        return {
+          gameState: 'game-over',
+        }
+      }
+      return {
+        prevTickTime: now,
+        nextTickTime: now + state.tickRate,
+        bubbles: [
+          ...newBubbles,
+          ...state.bubbles.map((oldBubble) => {
+            const newBubble: Bubble = {
+              key: oldBubble.key,
+              x: oldBubble.x,
+              y: oldBubble.y + 1,
+              color: oldBubble.color,
+              animation: 'pushed-up',
+            }
+            return bubbleSchema.parse(newBubble)
+          }),
+        ],
+      }
+    })
   },
   clickBubble(key) {
     let changed = false
@@ -123,9 +133,19 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       return { bubbles: [...sortedBubbles] }
     })
   },
+  reset() {
+    set({
+      prevTickTime: now,
+      nextTickTime: now + INITIAL_TICK_RATE,
+      tickRate: INITIAL_TICK_RATE,
+      bubbles: [],
+      gameState: 'running',
+    })
+    get().addBubbleLine()
+    get().addBubbleLine()
+    get().addBubbleLine()
+    get().addBubbleLine()
+  },
 }))
 
-useGameStore.getState().addBubbleLine()
-useGameStore.getState().addBubbleLine()
-useGameStore.getState().addBubbleLine()
-useGameStore.getState().addBubbleLine()
+useGameStore.getState().reset()
