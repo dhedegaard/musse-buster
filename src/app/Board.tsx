@@ -21,7 +21,9 @@ export const Board = memo(function Board() {
       rafHandle = requestAnimationFrame(frameCallback)
     }
     let rafHandle = requestAnimationFrame(frameCallback)
-    return () => cancelAnimationFrame(rafHandle)
+    return () => {
+      cancelAnimationFrame(rafHandle)
+    }
   }, [addBubbleLine, nextTickTime])
 
   return (

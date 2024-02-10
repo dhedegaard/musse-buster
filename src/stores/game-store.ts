@@ -25,7 +25,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   bubbles: [],
 
   addBubbleLine() {
-    const newBubbles = [...new Array(BOARD_WIDTH)].map<Bubble>((_, x) => {
+    const newBubbles = [...new Array<unknown>(BOARD_WIDTH)].map<Bubble>((_, x) => {
       const colorIndex = Math.floor(Math.random() * colorSchema.options.length)
       const color = colorSchema.options[colorIndex]
       if (color == null) {
@@ -91,6 +91,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
         bubbles: state.bubbles.filter((b) => !seenKeys.has(b.key)),
       }
     })
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (changed) {
       get().applyGravity()
     }
