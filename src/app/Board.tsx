@@ -131,7 +131,9 @@ export const Board = memo(function Board() {
             .with('paused', () => (
               <>
                 <div className="font-bold text-3xl">Paused!</div>
-                <div className="font-bold text-xl">Click here to continue</div>
+                <div className="font-bold text-xl">
+                  Click here, or press &apos;P&apos;, to continue
+                </div>
               </>
             ))
             .with('game-over', () => (
