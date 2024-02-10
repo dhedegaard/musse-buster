@@ -7,6 +7,8 @@ export const metadata: Metadata = {
   description: 'A bubble buster game.',
   keywords: ['musse', 'bubble', 'buster', 'game', 'dhedegaard'],
   robots: { index: true, follow: true },
+  manifest: '/manifest.json',
+  icons: { icon: '/favicon.png', apple: '/favicon.png' },
 }
 
 export default function Page() {

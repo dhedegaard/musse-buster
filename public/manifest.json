@@ -1,0 +1,23 @@
+{
+  "short_name": "Musse Buster",
+  "name": "Musse Buster",
+  "display": "standalone",
+  "scope": "/",
+  "start_url": "/",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "orientation": "portrait",
+  "description": "Musse Buster",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "type": "image/png",
+      "sizes": "198x199"
+    },
+    {
+      "src": "/favicon-128.png",
+      "type": "image/png",
+      "sizes": "128x128"
+    }
+  ]
+}
