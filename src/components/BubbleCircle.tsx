@@ -27,7 +27,7 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
         y={y}
         width={1}
         height={1}
-        className="fill-transparent cursor-pointer"
+        className="opacity-0 cursor-pointer"
         onMouseDown={handleClick}
       />
       <rect

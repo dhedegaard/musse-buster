@@ -28,11 +28,15 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const newBubbles = [...new Array(BOARD_WIDTH)].map<Bubble>((_, x) => {
       const colorIndex = Math.floor(Math.random() * colorSchema.options.length)
       const color = colorSchema.options[colorIndex]
+      if (color == null) {
+        throw new Error('Color is null, bug in the code!')
+      }
       const newBubble: Bubble = {
         key: crypto.randomUUID(),
         x,
         y: 0,
         color,
+        animation: 'spawning',
       }
       return bubbleSchema.parse(newBubble)
     })
@@ -48,6 +52,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
             x: oldBubble.x,
             y: oldBubble.y + 1,
             color: oldBubble.color,
+            animation: 'pushed-up',
           }
           return bubbleSchema.parse(newBubble)
         }),
@@ -57,8 +62,12 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   clickBubble(key) {
     let changed = false
     set((state) => {
-      const queue: Bubble[] = [state.bubbles.find((bubble) => bubble.key === key)]
-      const color = queue[0].color
+      const clickedBubble = state.bubbles.find((bubble) => bubble.key === key)
+      if (clickedBubble == null) {
+        return state
+      }
+      const queue: Bubble[] = [clickedBubble]
+      const { color } = clickedBubble
       const seenKeys = new Set<string>()
       while (queue.length > 0) {
         const bubble = queue.pop()

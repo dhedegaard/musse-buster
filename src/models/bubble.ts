@@ -15,5 +15,6 @@ export const bubbleSchema = z.object({
     .min(0)
     .max(BOARD_HEIGHT - 1),
   color: colorSchema,
+  animation: z.enum(['spawning', 'pushed-up', 'fall']),
 })
 export interface Bubble extends z.TypeOf<typeof bubbleSchema> {}
