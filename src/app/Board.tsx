@@ -10,6 +10,7 @@ import { useGameStore } from '../stores/game-store'
 import { BottomBar } from './BottomBar'
 import { CurrentScore } from './CurrentScore'
 import { SideButtons } from './SideButtons'
+import { HighScore } from './HighScore'
 
 export const Board = memo(function Board() {
   const bubbles = useGameStore(useShallow((state) => state.bubbles))
@@ -99,8 +100,9 @@ export const Board = memo(function Board() {
 
   return (
     <main className="box-border mx-auto my-4 flex flex-col gap-4 items-stretch h-[calc(100vh-64px)] w-[60vh] relative">
-      <div className="absolute right-full top-0 flex flex-col gap-4">
+      <div className="absolute right-full top-0 flex flex-col items-end gap-4 m-4">
         <CurrentScore />
+        <HighScore />
       </div>
 
       <SideButtons />
