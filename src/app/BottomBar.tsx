@@ -1,6 +1,7 @@
 import clsx from 'clsx'
-import { memo, useEffect, useRef } from 'react'
+import { MouseEventHandler, memo, useEffect, useMemo, useRef } from 'react'
 import { lime, sky } from 'tailwindcss/colors'
+import { match } from 'ts-pattern'
 import { useShallow } from 'zustand/react/shallow'
 import { useGameStore } from '../stores/game-store'
 
@@ -14,6 +15,9 @@ export const BottomBar = memo(function BottomBar() {
   const prevTickTime = useGameStore(useShallow((state) => state.prevTickTime))
   const nextTickTime = useGameStore(useShallow((state) => state.nextTickTime))
   const addBubbleLine = useGameStore(useShallow((state) => state.addBubbleLine))
+  const reset = useGameStore(useShallow((state) => state.reset))
+  const togglePause = useGameStore(useShallow((state) => state.togglePause))
+
   const gameState = useGameStore(useShallow((state) => state.gameState))
 
   useEffect(() => {
@@ -36,7 +40,16 @@ export const BottomBar = memo(function BottomBar() {
   return (
     <button
       type="button"
-      onClick={gameState === 'running' ? addBubbleLine : undefined}
+      onClick={useMemo(
+        () =>
+          match(gameState)
+            .returnType<MouseEventHandler<HTMLButtonElement> | undefined>()
+            .with('running', () => addBubbleLine)
+            .with('main-menu', 'game-over', () => reset)
+            .with('paused', () => togglePause)
+            .exhaustive(),
+        [addBubbleLine, gameState, reset, togglePause]
+      )}
       tabIndex={gameState === 'running' ? undefined : -1}
       className={clsx(
         'box-border flex-none w-full h-[6vh] border-2 border-solid border-slate-700 relative cursor-pointer transition-all transform-gpu scale-100 active:scale-105',
