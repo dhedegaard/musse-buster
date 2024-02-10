@@ -1,0 +1,6 @@
+.Circle {
+  transform-box: fill-box;
+  transition-duration: 0s;
+  transform-origin: center;
+  @apply transform-gpu stroke-slate-700 pointer-events-none select-none origin-center transition-all ease-linear;
+}

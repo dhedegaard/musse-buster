@@ -4,6 +4,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { Bubble } from '../models/bubble'
 import { BOARD_HEIGHT } from '../models/consts'
 import { useGameStore } from '../stores/game-store'
+import styles from './BubbleCircle.module.css'
 
 interface Props {
   bubble: Bubble
@@ -48,14 +49,15 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
         r={0.5}
         strokeWidth={0.005}
         style={useMemo<CSSProperties>(
-          () =>
-            bubble.animation !== 'fall'
-              ? { transitionDuration: '0s' }
-              : { transitionDuration: `${lastFallDelta * 150}ms` },
+          () => ({
+            transitionDuration:
+              bubble.animation !== 'fall' ? undefined : `${lastFallDelta * 150}ms`,
+          }),
           [bubble.animation, lastFallDelta]
         )}
         className={clsx(
-          'transform-gpu stroke-slate-700 rounded-full pointer-events-none select-none transition-all ease-linear',
+          styles['Circle'],
+          bubble.animation === 'spawning' && 'animate-spawn',
           bubble.color === 'red' && 'fill-rose-500',
           bubble.color === 'blue' && 'fill-sky-500',
           bubble.color === 'green' && 'fill-lime-500',
