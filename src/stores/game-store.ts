@@ -20,12 +20,11 @@ interface GameStore {
 }
 
 const INITIAL_TICK_RATE = 5_200 as const
-const now = Date.now()
 
 export const useGameStore = create<GameStore>()(
   devtools((set, get) => ({
-    prevTickTime: now,
-    nextTickTime: now + INITIAL_TICK_RATE,
+    prevTickTime: -1,
+    nextTickTime: -1,
     tickRate: INITIAL_TICK_RATE,
     bubbles: [],
     gameState: 'main-menu',

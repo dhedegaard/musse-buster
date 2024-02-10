@@ -36,23 +36,38 @@ export const Board = memo(function Board() {
   }, [addBubbleLine, gameState, nextTickTime])
 
   const togglePause = useGameStore(useShallow((state) => state.togglePause))
-  useEffect(() => {
-    if (gameState === 'running' || gameState === 'paused') {
-      const handle = (event: KeyboardEvent) => {
-        if (event.key === 'p' || event.key === ' ') {
-          togglePause()
-        }
-        if (event.key === 'r') {
-          reset()
-        }
-      }
-      window.document.addEventListener('keydown', handle)
-      return () => {
-        window.document.removeEventListener('keydown', handle)
-      }
-    }
-    return undefined
-  })
+  useEffect(
+    () =>
+      match(gameState)
+        .returnType<undefined | (() => void)>()
+        .with('running', 'paused', () => {
+          const handle = (event: KeyboardEvent) => {
+            if (event.key === 'p' || event.key === ' ') {
+              togglePause()
+            }
+            if (event.key === 'r') {
+              reset()
+            }
+          }
+          window.document.addEventListener('keydown', handle)
+          return () => {
+            window.document.removeEventListener('keydown', handle)
+          }
+        })
+        .with('game-over', 'main-menu', () => {
+          const handle = (event: KeyboardEvent) => {
+            if (event.key === 'r' || event.key === ' ') {
+              reset()
+            }
+          }
+          window.document.addEventListener('keydown', handle)
+          return () => {
+            window.document.removeEventListener('keydown', handle)
+          }
+        })
+        .exhaustive(),
+    [gameState, reset, togglePause]
+  )
 
   useEffect(() => {
     if (gameState !== 'running') {
