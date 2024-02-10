@@ -10,6 +10,7 @@ interface GameStore {
   nextTickTime: number
   tickRate: number
   gameState: 'main-menu' | 'running' | 'game-over' | 'paused'
+  currentScore: number
 
   bubbles: Bubble[]
 
@@ -31,6 +32,7 @@ export const useGameStore = create<GameStore>()(
         tickRate: INITIAL_TICK_RATE,
         bubbles: [],
         gameState: 'main-menu',
+        currentScore: 0,
 
         addBubbleLine() {
           const newBubbles = [...new Array<unknown>(BOARD_WIDTH)].map<Bubble>((_, x) => {
@@ -109,6 +111,7 @@ export const useGameStore = create<GameStore>()(
               changed = true
               return {
                 bubbles: state.bubbles.filter((b) => !seenKeys.has(b.key)),
+                currentScore: state.currentScore + seenKeys.size,
               }
             },
             undefined,

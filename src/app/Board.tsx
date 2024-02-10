@@ -12,9 +12,11 @@ import { BottomBar } from './BottomBar'
 
 export const Board = memo(function Board() {
   const bubbles = useGameStore(useShallow((state) => state.bubbles))
-  const addBubbleLine = useGameStore(useShallow((state) => state.addBubbleLine))
   const nextTickTime = useGameStore(useShallow((state) => state.nextTickTime))
   const gameState = useGameStore(useShallow((state) => state.gameState))
+  const currentScore = useGameStore(useShallow((state) => state.currentScore))
+
+  const addBubbleLine = useGameStore(useShallow((state) => state.addBubbleLine))
   const reset = useGameStore(useShallow((state) => state.reset))
 
   useEffect(() => {
@@ -97,6 +99,11 @@ export const Board = memo(function Board() {
 
   return (
     <main className="box-border mx-auto my-4 flex flex-col gap-4 items-stretch h-[calc(100vh-64px)] w-[60vh] relative">
+      <div className="absolute right-full top-0 m-4 p-4 flex flex-col items-center gap-2 border border-solid border-slate-700 rounded-xl">
+        <div className="text-xl font-semibold whitespace-nowrap">Current score:</div>
+        <div className="text-3xl font-bold">{currentScore.toLocaleString()}</div>
+      </div>
+
       <div className="absolute left-full top-0 m-4 flex flex-col gap-2 items-start w-full">
         <button
           type="button"
