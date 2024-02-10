@@ -69,20 +69,25 @@ export const Board = memo(function Board() {
     [gameState, reset, togglePause]
   )
 
-  useEffect(() => {
-    if (gameState !== 'running') {
-      return undefined
-    }
-    const handle = () => {
-      if (document.hidden) {
-        togglePause()
-      }
-    }
-    window.document.addEventListener('visibilitychange', handle)
-    return () => {
-      window.document.removeEventListener('visibilitychange', handle)
-    }
-  }, [gameState, togglePause])
+  useEffect(
+    () =>
+      match(gameState)
+        .returnType<undefined | (() => void)>()
+        .with('game-over', 'main-menu', 'paused', () => undefined)
+        .with('running', () => {
+          const handle = () => {
+            if (document.hidden) {
+              togglePause()
+            }
+          }
+          window.document.addEventListener('visibilitychange', handle)
+          return () => {
+            window.document.removeEventListener('visibilitychange', handle)
+          }
+        })
+        .exhaustive(),
+    [gameState, togglePause]
+  )
 
   return (
     <main className="box-border mx-auto my-4 flex flex-col gap-4 items-stretch h-[calc(100vh-64px)] w-[60vh] relative">
