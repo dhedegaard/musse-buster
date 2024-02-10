@@ -1,5 +1,6 @@
 import clsx from 'clsx'
 import { CSSProperties, memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { P, match } from 'ts-pattern'
 import { useShallow } from 'zustand/react/shallow'
 import { Bubble } from '../models/bubble'
 import { BOARD_HEIGHT } from '../models/consts'
@@ -50,7 +51,11 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
         strokeWidth={0.005}
         style={useMemo<CSSProperties>(
           () => ({
-            transitionDuration: bubble.animation !== 'fall' ? '0ms' : `${lastFallDelta * 150}ms`,
+            transitionDuration: match({ animation: bubble.animation, lastFallDelta })
+              .returnType<CSSProperties['transitionDuration']>()
+              .with({ animation: 'fall' }, () => `${lastFallDelta * 150}ms`)
+              .with({ animation: P.union('pushed-up', 'spawning') }, () => '0ms')
+              .exhaustive(),
           }),
           [bubble.animation, lastFallDelta]
         )}
