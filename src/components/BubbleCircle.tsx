@@ -50,8 +50,7 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
         strokeWidth={0.005}
         style={useMemo<CSSProperties>(
           () => ({
-            transitionDuration:
-              bubble.animation !== 'fall' ? undefined : `${lastFallDelta * 150}ms`,
+            transitionDuration: bubble.animation !== 'fall' ? '0ms' : `${lastFallDelta * 150}ms`,
           }),
           [bubble.animation, lastFallDelta]
         )}
