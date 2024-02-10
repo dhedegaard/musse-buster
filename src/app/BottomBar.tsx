@@ -18,7 +18,7 @@ export const BottomBar = memo(function BottomBar() {
 
   useEffect(() => {
     const div = ref.current
-    if (div == null || gameState === 'game-over') {
+    if (div == null || gameState !== 'running') {
       return
     }
     const duration = nextTickTime - prevTickTime

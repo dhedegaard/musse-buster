@@ -1,6 +1,7 @@
 'use client'
 
-import { memo, useEffect } from 'react'
+import { ReactNode, memo, useEffect } from 'react'
+import { match } from 'ts-pattern'
 import { useShallow } from 'zustand/react/shallow'
 import { BubbleCircle } from '../components/BubbleCircle'
 import { BOARD_HEIGHT, BOARD_WIDTH } from '../models/consts'
@@ -15,7 +16,7 @@ export const Board = memo(function Board() {
   const reset = useGameStore(useShallow((state) => state.reset))
 
   useEffect(() => {
-    if (gameState === 'game-over') {
+    if (gameState !== 'running') {
       return
     }
 
@@ -32,16 +33,44 @@ export const Board = memo(function Board() {
     }
   }, [addBubbleLine, gameState, nextTickTime])
 
+  const togglePause = useGameStore(useShallow((state) => state.togglePause))
+  useEffect(() => {
+    if (gameState === 'running' || gameState === 'paused') {
+      const handle = (event: KeyboardEvent) => {
+        if (event.key === 'p' || event.key === ' ') {
+          togglePause()
+        }
+      }
+      window.document.addEventListener('keydown', handle)
+      return () => {
+        window.document.removeEventListener('keydown', handle)
+      }
+    }
+  })
+
   return (
     <main className="box-border mx-auto my-4 flex flex-col gap-4 items-stretch h-[calc(100vh-64px)] w-[60vh] relative">
-      {gameState === 'game-over' && (
+      {gameState !== 'running' && (
         <button
           type="button"
           className="absolute top-0 left-0 right-0 bottom-0 bg-white bg-opacity-70 flex flex-col items-center justify-center gap-4 select-none cursor-pointer"
-          onClick={reset}
+          onClick={gameState === 'paused' ? togglePause : reset}
         >
-          <div className="font-bold text-3xl">GAME OVER!</div>
-          <div className="font-bold text-xl">Click here to start over</div>
+          {match(gameState)
+            .returnType<ReactNode>()
+            .with('paused', () => (
+              <>
+                <div className="font-bold text-3xl">Paused!</div>
+                <div className="font-bold text-xl">Click here to continue</div>
+              </>
+            ))
+            .with('game-over', () => (
+              <>
+                <div className="font-bold text-3xl">GAME OVER!</div>
+                <div className="font-bold text-xl">Click here to start over</div>
+              </>
+            ))
+            .exhaustive()}
         </button>
       )}
 

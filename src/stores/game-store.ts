@@ -7,7 +7,7 @@ interface GameStore {
   prevTickTime: number
   nextTickTime: number
   tickRate: number
-  gameState: 'running' | 'game-over'
+  gameState: 'running' | 'game-over' | 'paused'
 
   bubbles: Bubble[]
 
@@ -15,6 +15,7 @@ interface GameStore {
   clickBubble: (key: string) => void
   applyGravity: () => void
   reset: () => void
+  togglePause: () => void
 }
 
 const INITIAL_TICK_RATE = 5_200
@@ -74,7 +75,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     set((state) => {
       const clickedBubble = state.bubbles.find((bubble) => bubble.key === key)
       if (clickedBubble == null) {
-        return state
+        return {}
       }
       const queue: Bubble[] = [clickedBubble]
       const { color } = clickedBubble
@@ -94,7 +95,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
         queue.push(...neighbors)
       }
       if (seenKeys.size < 3) {
-        return state
+        return {}
       }
       changed = true
       return {
@@ -145,6 +146,17 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     get().addBubbleLine()
     get().addBubbleLine()
     get().addBubbleLine()
+  },
+  togglePause() {
+    set((state) => {
+      if (state.gameState === 'running') {
+        return { gameState: 'paused' }
+      } else if (state.gameState === 'paused') {
+        return { gameState: 'running' }
+      } else {
+        return {}
+      }
+    })
   },
 }))
 
