@@ -4,6 +4,10 @@ import { colorSchema } from '../models/color'
 import { BOARD_WIDTH } from '../models/consts'
 
 interface GameStore {
+  prevTickTime: number
+  nextTickTime: number
+  tickRate: number
+
   bubbles: Bubble[]
 
   addBubbleLine: () => void
@@ -11,7 +15,13 @@ interface GameStore {
   applyGravity: () => void
 }
 
+const INITIAL_TICK_RATE = 5_200
+
+const now = Date.now()
 export const useGameStore = create<GameStore>()((set, get) => ({
+  prevTickTime: now,
+  nextTickTime: now + INITIAL_TICK_RATE,
+  tickRate: INITIAL_TICK_RATE,
   bubbles: [],
 
   addBubbleLine() {
@@ -26,7 +36,10 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       }
       return bubbleSchema.parse(newBubble)
     })
+    const now = Date.now()
     set((state) => ({
+      prevTickTime: now,
+      nextTickTime: now + state.tickRate,
       bubbles: [
         ...newBubbles,
         ...state.bubbles.map((oldBubble) => {
