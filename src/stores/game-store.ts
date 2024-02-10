@@ -114,12 +114,14 @@ export const useGameStore = create<GameStore>()(
                 return {}
               }
               changed = true
+              const updatedCurrentGame: Game = {
+                key: state.currentGame.key,
+                score: state.currentGame.score + seenKeys.size,
+                startedAt: state.currentGame.startedAt,
+              }
               return {
                 bubbles: state.bubbles.filter((b) => !seenKeys.has(b.key)),
-                currentGame: {
-                  ...state.currentGame,
-                  score: state.currentGame.score + seenKeys.size,
-                },
+                currentGame: gameSchema.parse(updatedCurrentGame),
               }
             },
             undefined,
