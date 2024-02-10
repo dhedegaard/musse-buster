@@ -42,6 +42,9 @@ export const Board = memo(function Board() {
         .returnType<undefined | (() => void)>()
         .with('running', 'paused', () => {
           const handle = (event: KeyboardEvent) => {
+            if (event.metaKey || event.ctrlKey) {
+              return
+            }
             if (event.key === 'p' || event.key === ' ') {
               togglePause()
             }
@@ -56,6 +59,9 @@ export const Board = memo(function Board() {
         })
         .with('game-over', 'main-menu', () => {
           const handle = (event: KeyboardEvent) => {
+            if (event.metaKey || event.ctrlKey) {
+              return
+            }
             if (event.key === 'r' || event.key === ' ') {
               reset()
             }

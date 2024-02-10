@@ -23,6 +23,7 @@
     "zustand": "^4.5.0"
   },
   "devDependencies": {
+    "@redux-devtools/extension": "^3.3.0",
     "@tsconfig/next": "^2.0.1",
     "@tsconfig/strictest": "^2.0.3",
     "@types/node": "20.11.17",
