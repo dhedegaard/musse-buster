@@ -1,6 +1,5 @@
 'use client'
 
-import { ArrowPathIcon, PauseIcon, PlayIcon } from '@heroicons/react/16/solid'
 import clsx from 'clsx'
 import { ReactNode, memo, useEffect } from 'react'
 import { match } from 'ts-pattern'
@@ -9,12 +8,13 @@ import { BubbleCircle } from '../components/BubbleCircle'
 import { BOARD_HEIGHT, BOARD_WIDTH } from '../models/consts'
 import { useGameStore } from '../stores/game-store'
 import { BottomBar } from './BottomBar'
+import { CurrentScore } from './CurrentScore'
+import { SideButtons } from './SideButtons'
 
 export const Board = memo(function Board() {
   const bubbles = useGameStore(useShallow((state) => state.bubbles))
   const nextTickTime = useGameStore(useShallow((state) => state.nextTickTime))
   const gameState = useGameStore(useShallow((state) => state.gameState))
-  const currentGame = useGameStore(useShallow((state) => state.currentGame))
 
   const addBubbleLine = useGameStore(useShallow((state) => state.addBubbleLine))
   const reset = useGameStore(useShallow((state) => state.reset))
@@ -99,37 +99,11 @@ export const Board = memo(function Board() {
 
   return (
     <main className="box-border mx-auto my-4 flex flex-col gap-4 items-stretch h-[calc(100vh-64px)] w-[60vh] relative">
-      <div className="absolute right-full top-0 m-4 p-4 flex flex-col items-center gap-2 border border-solid border-slate-700 rounded-xl">
-        <div className="text-xl font-semibold whitespace-nowrap">Current score:</div>
-        <div className="text-3xl font-bold">{currentGame.score.toLocaleString()}</div>
+      <div className="absolute right-full top-0 flex flex-col gap-4">
+        <CurrentScore />
       </div>
 
-      <div className="absolute left-full top-0 m-4 flex flex-col gap-2 items-start w-full">
-        <button
-          type="button"
-          onClick={togglePause}
-          disabled={gameState === 'game-over'}
-          className="btn btn-primary btn-sm text-white whitespace-nowrap flex items-center gap-1"
-        >
-          {gameState === 'paused' ? (
-            <>
-              <PlayIcon width={16} /> <div>Resume (P)</div>
-            </>
-          ) : (
-            <>
-              <PauseIcon width={16} /> <div>Pause (P)</div>
-            </>
-          )}
-        </button>
-        <button
-          type="button"
-          onClick={reset}
-          className="btn btn-error btn-sm text-white whitespace-nowrap flex items-center gap-1"
-        >
-          <ArrowPathIcon width={16} />
-          <div>Reset (R)</div>
-        </button>
-      </div>
+      <SideButtons />
 
       <div
         className={clsx(
