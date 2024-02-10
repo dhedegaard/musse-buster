@@ -57,10 +57,10 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
         className={clsx(
           styles['Circle'],
           bubble.animation === 'spawning' && 'animate-spawn',
-          bubble.color === 'red' && 'fill-rose-500',
-          bubble.color === 'blue' && 'fill-sky-500',
+          bubble.color === 'red' && 'fill-rose-600',
+          bubble.color === 'blue' && 'fill-sky-600',
           bubble.color === 'green' && 'fill-lime-500',
-          bubble.color === 'yellow' && 'fill-amber-500'
+          bubble.color === 'yellow' && 'fill-amber-400'
         )}
       />
     </>
