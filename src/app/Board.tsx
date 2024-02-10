@@ -40,13 +40,32 @@ export const Board = memo(function Board() {
         if (event.key === 'p' || event.key === ' ') {
           togglePause()
         }
+        if (event.key === 'r') {
+          reset()
+        }
       }
       window.document.addEventListener('keydown', handle)
       return () => {
         window.document.removeEventListener('keydown', handle)
       }
     }
+    return undefined
   })
+
+  useEffect(() => {
+    if (gameState !== 'running') {
+      return undefined
+    }
+    const handle = () => {
+      if (document.hidden) {
+        togglePause()
+      }
+    }
+    window.document.addEventListener('visibilitychange', handle)
+    return () => {
+      window.document.removeEventListener('visibilitychange', handle)
+    }
+  }, [gameState, togglePause])
 
   return (
     <main className="box-border mx-auto my-4 flex flex-col gap-4 items-stretch h-[calc(100vh-64px)] w-[60vh] relative">

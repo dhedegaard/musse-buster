@@ -152,7 +152,8 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       if (state.gameState === 'running') {
         return { gameState: 'paused' }
       } else if (state.gameState === 'paused') {
-        return { gameState: 'running' }
+        const now = Date.now()
+        return { gameState: 'running', prevTickTime: now, nextTickTime: now + state.tickRate }
       } else {
         return {}
       }
