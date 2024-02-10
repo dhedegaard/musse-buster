@@ -1,8 +1,12 @@
 import { memo, useEffect, useRef } from 'react'
+import { lime, sky } from 'tailwindcss/colors'
 import { useShallow } from 'zustand/react/shallow'
 import { useGameStore } from '../stores/game-store'
 
-const keyframe: Keyframe[] = [{ width: '0%' }, { width: '100%' }]
+const keyframe: Keyframe[] = [
+  { width: '0%', backgroundColor: lime[400] },
+  { width: '100%', backgroundColor: sky[500] },
+]
 export const BottomBar = memo(function BottomBar() {
   const ref = useRef<HTMLDivElement>(null)
 

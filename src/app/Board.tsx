@@ -7,21 +7,22 @@ import { BOARD_HEIGHT, BOARD_WIDTH } from '../models/consts'
 import { useGameStore } from '../stores/game-store'
 import { BottomBar } from './BottomBar'
 
-// TODO: Make it variable and increase with the level.
-const TICK_TIME = 5_200 as const
-
 export const Board = memo(function Board() {
   const bubbles = useGameStore(useShallow((state) => state.bubbles))
   const addBubbleLine = useGameStore(useShallow((state) => state.addBubbleLine))
+  const nextTickTime = useGameStore(useShallow((state) => state.nextTickTime))
 
   useEffect(() => {
-    // TODO: Replace with a RAF, and the interval should be dynamic with a "level".
-    const intervalHandle = setInterval(() => {
-      console.log('TICK!')
-      addBubbleLine()
-    }, TICK_TIME)
-    return () => clearInterval(intervalHandle)
-  }, [addBubbleLine])
+    const frameCallback = () => {
+      const now = Date.now()
+      if (now >= nextTickTime) {
+        addBubbleLine()
+      }
+      rafHandle = requestAnimationFrame(frameCallback)
+    }
+    let rafHandle = requestAnimationFrame(frameCallback)
+    return () => cancelAnimationFrame(rafHandle)
+  }, [addBubbleLine, nextTickTime])
 
   return (
     <main className="box-border mx-auto my-4 flex flex-col gap-4 items-stretch h-[calc(100vh-64px)] w-[60vh]">
