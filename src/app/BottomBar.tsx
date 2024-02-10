@@ -31,7 +31,7 @@ export const BottomBar = memo(function BottomBar() {
     <button
       type="button"
       onClick={addBubbleLine}
-      className="box-border flex-none w-full h-[6vh] border-2 border-solid border-slate-700 hover:border-slate-950 relative cursor-pointer"
+      className="box-border flex-none w-full h-[6vh] border-2 border-solid border-slate-700 relative cursor-pointer"
     >
       <div
         ref={ref}
