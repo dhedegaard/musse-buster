@@ -61,7 +61,7 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
           styles['Circle'],
           bubble.animation === 'spawning' && 'animate-spawn',
           bubble.color === 'red' && 'fill-rose-600',
-          bubble.color === 'blue' && 'fill-sky-600',
+          bubble.color === 'blue' && 'fill-sky-700',
           bubble.color === 'green' && 'fill-lime-500',
           bubble.color === 'yellow' && 'fill-amber-400'
         )}
