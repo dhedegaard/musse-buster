@@ -4,7 +4,7 @@ import { devtools, persist } from 'zustand/middleware'
 import { Bubble, bubbleSchema } from '../models/bubble'
 import { colorSchema } from '../models/color'
 import { BOARD_HEIGHT, BOARD_WIDTH } from '../models/consts'
-import { Game } from '../models/game'
+import { Game, gameSchema } from '../models/game'
 
 interface GameStore {
   prevTickTime: number
@@ -162,19 +162,20 @@ export const useGameStore = create<GameStore>()(
           )
         },
         reset() {
-          const now = Date.now()
+          const now = new Date()
+          const newGame: Game = {
+            key: crypto.randomUUID(),
+            score: 0,
+            startedAt: now.toISOString(),
+          }
           set(
             {
-              prevTickTime: now,
-              nextTickTime: now + INITIAL_TICK_RATE,
+              prevTickTime: now.getTime(),
+              nextTickTime: now.getTime() + INITIAL_TICK_RATE,
               tickRate: INITIAL_TICK_RATE,
               bubbles: [],
               gameState: 'running',
-              currentGame: {
-                key: crypto.randomUUID(),
-                score: 0,
-                startedAt: new Date().toISOString(),
-              },
+              currentGame: gameSchema.parse(newGame),
             },
             undefined,
             'reset'
