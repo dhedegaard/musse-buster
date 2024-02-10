@@ -1,13 +1,5 @@
 import clsx from 'clsx'
-import {
-  CSSProperties,
-  memo,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  useTransition,
-} from 'react'
+import { CSSProperties, memo, useEffect, useMemo, useState, useTransition } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useGameStore } from '../stores/game-store'
 
@@ -21,10 +13,11 @@ export const BottomBar = memo(function BottomBar() {
   useEffect(() => {
     const frameCallback = () => {
       const now = Date.now()
-      const newPercentage = Math.max(
+      const newRawPercentage = Math.max(
         0,
         Math.min(100, ((now - prevTickTime) / (nextTickTime - prevTickTime)) * 100)
       )
+      const newPercentage = Math.round(newRawPercentage * 1) / 1
       startTransition(() => {
         setPercentage(newPercentage)
       })
@@ -43,11 +36,13 @@ export const BottomBar = memo(function BottomBar() {
 
   return (
     <div
+      role="button"
       onClick={addBubbleLine}
       className={clsx(
-        'box-border flex-none w-full h-[6vh] border-2 border-solid border-slate-800 relative cursor-pointer',
+        'box-border flex-none w-full h-[6vh] border-2 border-solid border-slate-700 hover:border-slate-950 relative cursor-pointer',
         'before:bg-sky-500 before:absolute before:top-0 before:bottom-0 before:left-0 before:w-[var(--percentage)]'
       )}
+      tabIndex={0}
       style={styleObj}
     />
   )
