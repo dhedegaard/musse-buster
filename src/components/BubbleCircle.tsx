@@ -1,5 +1,6 @@
 import clsx from 'clsx'
-import { memo, useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo, useRef } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { Bubble } from '../models/bubble'
 import { BOARD_HEIGHT } from '../models/consts'
 import { useGameStore } from '../stores/game-store'
@@ -9,12 +10,15 @@ interface Props {
 }
 
 export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
+  const clickBubble = useGameStore(useShallow((state) => state.clickBubble))
   const handleClick = useCallback(() => {
-    useGameStore.getState().clickBubble(bubble.key)
-  }, [bubble.key])
+    clickBubble(bubble.key)
+  }, [bubble.key, clickBubble])
 
   const x = bubble.x
   const y = useMemo(() => BOARD_HEIGHT - bubble.y - 1, [bubble.y])
+
+  const renderedRef = useRef<SVGRectElement>(null)
 
   return (
     <>
@@ -27,6 +31,7 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
         onMouseDown={handleClick}
       />
       <rect
+        ref={renderedRef}
         x={x}
         y={y}
         width={1}
