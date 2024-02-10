@@ -1,6 +1,7 @@
 'use client'
 
 import { ArrowPathIcon, PauseIcon, PlayIcon } from '@heroicons/react/16/solid'
+import clsx from 'clsx'
 import { ReactNode, memo, useEffect } from 'react'
 import { match } from 'ts-pattern'
 import { useShallow } from 'zustand/react/shallow'
@@ -97,6 +98,28 @@ export const Board = memo(function Board() {
         </button>
       </div>
 
+      <div
+        className={clsx(
+          `flex-auto transition-all aspect-[14/10]`,
+          gameState === 'paused' ? 'grayscale' : 'grayscale-0'
+        )}
+      >
+        <svg viewBox={`0 0 ${BOARD_WIDTH} ${BOARD_HEIGHT}`} width="100%">
+          <rect
+            x={0}
+            y={0}
+            width={BOARD_WIDTH}
+            height={BOARD_HEIGHT}
+            stroke="black"
+            strokeWidth={0.1}
+            fill="white"
+          />
+          {bubbles.map((bubble) => (
+            <BubbleCircle key={bubble.key} bubble={bubble} />
+          ))}
+        </svg>
+      </div>
+
       {gameState !== 'running' && (
         <button
           type="button"
@@ -120,23 +143,6 @@ export const Board = memo(function Board() {
             .exhaustive()}
         </button>
       )}
-
-      <div className={`flex-auto aspect-[14/10]`}>
-        <svg viewBox={`0 0 ${BOARD_WIDTH} ${BOARD_HEIGHT}`} width="100%">
-          <rect
-            x={0}
-            y={0}
-            width={BOARD_WIDTH}
-            height={BOARD_HEIGHT}
-            stroke="black"
-            strokeWidth={0.1}
-            fill="white"
-          />
-          {bubbles.map((bubble) => (
-            <BubbleCircle key={bubble.key} bubble={bubble} />
-          ))}
-        </svg>
-      </div>
 
       <BottomBar />
     </main>
