@@ -40,7 +40,7 @@ export const BottomBar = memo(function BottomBar() {
       tabIndex={gameState === 'game-over' ? -1 : undefined}
       className={clsx(
         'box-border flex-none w-full h-[6vh] border-2 border-solid border-slate-700 relative cursor-pointer transition-all transform-gpu scale-100 active:scale-105',
-        gameState === 'game-over' && 'pointer-events-none opacity-70'
+        gameState === 'game-over' && 'pointer-events-none opacity-30'
       )}
     >
       <div
