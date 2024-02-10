@@ -124,7 +124,7 @@ export const Board = memo(function Board() {
         <button
           type="button"
           onClick={reset}
-          className="btn btn-primary btn-sm text-white whitespace-nowrap flex items-center gap-1"
+          className="btn btn-error btn-sm text-white whitespace-nowrap flex items-center gap-1"
         >
           <ArrowPathIcon width={16} />
           <div>Reset (R)</div>
