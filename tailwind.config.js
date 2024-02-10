@@ -10,7 +10,7 @@ module.exports = {
         },
       },
       animation: {
-        spawn: 'spawn 0.25s ease-out 1',
+        spawn: 'spawn 0.2s ease 1',
       },
     },
   },
