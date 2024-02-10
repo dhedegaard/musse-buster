@@ -11,7 +11,7 @@ export const Board = memo(function Board() {
 
   useEffect(() => {
     // TODO: Replace with a RAF, and the interval should be dynamic with a "level".
-    const intervalHandle = setInterval(() => addBubbleLine(), 1_200)
+    const intervalHandle = setInterval(() => addBubbleLine(), 5_200)
     return () => clearInterval(intervalHandle)
   }, [addBubbleLine])
 
