@@ -35,13 +35,14 @@ export const Board = memo(function Board() {
   return (
     <main className="box-border mx-auto my-4 flex flex-col gap-4 items-stretch h-[calc(100vh-64px)] w-[60vh] relative">
       {gameState === 'game-over' && (
-        <div
-          className="absolute top-0 left-0 right-0 bottom-0 bg-white opacity-60 flex flex-col items-center justify-center gap-4 select-none cursor-pointer"
+        <button
+          type="button"
+          className="absolute top-0 left-0 right-0 bottom-0 bg-white bg-opacity-70 flex flex-col items-center justify-center gap-4 select-none cursor-pointer"
           onClick={reset}
         >
           <div className="font-bold text-3xl">GAME OVER!</div>
           <div className="font-bold text-xl">Click here to start over</div>
-        </div>
+        </button>
       )}
 
       <div className={`flex-auto aspect-[14/10]`}>

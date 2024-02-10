@@ -1,3 +1,4 @@
+import clsx from 'clsx'
 import { memo, useEffect, useRef } from 'react'
 import { lime, sky } from 'tailwindcss/colors'
 import { useShallow } from 'zustand/react/shallow'
@@ -13,10 +14,11 @@ export const BottomBar = memo(function BottomBar() {
   const prevTickTime = useGameStore(useShallow((state) => state.prevTickTime))
   const nextTickTime = useGameStore(useShallow((state) => state.nextTickTime))
   const addBubbleLine = useGameStore(useShallow((state) => state.addBubbleLine))
+  const gameState = useGameStore(useShallow((state) => state.gameState))
 
   useEffect(() => {
     const div = ref.current
-    if (div == null) {
+    if (div == null || gameState === 'game-over') {
       return
     }
     const duration = nextTickTime - prevTickTime
@@ -29,13 +31,17 @@ export const BottomBar = memo(function BottomBar() {
     return () => {
       animateHandle.cancel()
     }
-  }, [prevTickTime, nextTickTime])
+  }, [prevTickTime, nextTickTime, gameState])
 
   return (
     <button
       type="button"
-      onClick={addBubbleLine}
-      className="box-border flex-none w-full h-[6vh] border-2 border-solid border-slate-700 relative cursor-pointer transition-all transform-gpu scale-100 active:scale-105"
+      onClick={gameState === 'game-over' ? undefined : addBubbleLine}
+      tabIndex={gameState === 'game-over' ? -1 : undefined}
+      className={clsx(
+        'box-border flex-none w-full h-[6vh] border-2 border-solid border-slate-700 relative cursor-pointer transition-all transform-gpu scale-100 active:scale-105',
+        gameState === 'game-over' && 'pointer-events-none opacity-70'
+      )}
     >
       <div
         ref={ref}
