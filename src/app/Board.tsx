@@ -5,6 +5,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { BubbleCircle } from '../components/BubbleCircle'
 import { BOARD_HEIGHT, BOARD_WIDTH } from '../models/consts'
 import { useCircles } from '../stores/circles'
+import { BottomBar } from './BottomBar'
 
 // TODO: Make it variable and increase with the level.
 const TICK_TIME = 5_200 as const
@@ -23,7 +24,7 @@ export const Board = memo(function Board() {
   }, [addBubbleLine])
 
   return (
-    <main className="box-border mx-auto my-4 flex flex-col gap-1 items-stretch h-[calc(100vh-32px)] w-[70vh]">
+    <main className="box-border mx-auto my-4 flex flex-col gap-4 items-stretch h-[calc(100vh-64px)] w-[60vh]">
       <div className={`flex-auto aspect-[14/10]`}>
         <svg viewBox={`0 0 ${BOARD_WIDTH} ${BOARD_HEIGHT}`} width="100%">
           <rect
@@ -40,6 +41,8 @@ export const Board = memo(function Board() {
           ))}
         </svg>
       </div>
+
+      <BottomBar />
     </main>
   )
 })
