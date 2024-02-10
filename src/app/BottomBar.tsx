@@ -36,11 +36,11 @@ export const BottomBar = memo(function BottomBar() {
   return (
     <button
       type="button"
-      onClick={gameState === 'game-over' ? undefined : addBubbleLine}
-      tabIndex={gameState === 'game-over' ? -1 : undefined}
+      onClick={gameState === 'running' ? addBubbleLine : undefined}
+      tabIndex={gameState === 'running' ? undefined : -1}
       className={clsx(
         'box-border flex-none w-full h-[6vh] border-2 border-solid border-slate-700 relative cursor-pointer transition-all transform-gpu scale-100 active:scale-105',
-        gameState === 'game-over' && 'pointer-events-none opacity-30'
+        gameState !== 'running' && 'pointer-events-none opacity-30'
       )}
     >
       <div

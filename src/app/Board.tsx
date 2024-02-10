@@ -124,7 +124,11 @@ export const Board = memo(function Board() {
         <button
           type="button"
           className="absolute top-0 left-0 right-0 bottom-0 bg-white bg-opacity-70 flex flex-col items-center justify-center gap-4 select-none cursor-pointer"
-          onClick={gameState === 'paused' ? togglePause : reset}
+          onClick={match(gameState)
+            .returnType<() => void>()
+            .with('paused', () => togglePause)
+            .with('game-over', 'main-menu', () => reset)
+            .exhaustive()}
         >
           {match(gameState)
             .returnType<ReactNode>()
@@ -140,6 +144,12 @@ export const Board = memo(function Board() {
               <>
                 <div className="font-bold text-3xl">GAME OVER!</div>
                 <div className="font-bold text-xl">Click here to start over</div>
+              </>
+            ))
+            .with('main-menu', () => (
+              <>
+                <div className="font-bold text-3xl">MUSSE BUSTER!</div>
+                <div className="font-bold text-xl">Click here to start a game</div>
               </>
             ))
             .exhaustive()}
