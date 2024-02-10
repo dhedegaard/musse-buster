@@ -35,7 +35,9 @@ export const HighScore = memo(function HighScore() {
 
   return (
     <div className="border border-solid border-slate-700 p-4 rounded-xl">
-      <div className="font-bold w-full border-b border-solid border-b-slate-700">Highscore:</div>
+      <div className="text-xl font-bold w-full border-b border-solid border-b-slate-700 mb-4">
+        Highscore:
+      </div>
       {allGames.map((game) => (
         <div
           key={game.key}
