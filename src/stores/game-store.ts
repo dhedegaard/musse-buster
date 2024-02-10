@@ -109,8 +109,11 @@ export const useGameStore = create<GameStore>()((set, get) => ({
           ) {
             changed = true
             const newBubble: Bubble = {
-              ...bubble,
+              key: bubble.key,
+              x: bubble.x,
               y: bubble.y - 1,
+              color: bubble.color,
+              animation: 'fall',
             }
             return newBubble
           }
