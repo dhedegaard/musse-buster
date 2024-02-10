@@ -12,6 +12,7 @@ interface GameStore {
   tickRate: number
   gameState: 'main-menu' | 'running' | 'game-over' | 'paused'
   currentGame: Game
+  oldGames: Game[]
 
   bubbles: Bubble[]
 
@@ -38,6 +39,7 @@ export const useGameStore = create<GameStore>()(
           score: 0,
           startedAt: new Date().toISOString(),
         },
+        oldGames: [],
 
         addBubbleLine() {
           const newBubbles = [...new Array<unknown>(BOARD_WIDTH)].map<Bubble>((_, x) => {
@@ -171,14 +173,15 @@ export const useGameStore = create<GameStore>()(
             startedAt: now.toISOString(),
           }
           set(
-            {
+            (state) => ({
               prevTickTime: now.getTime(),
               nextTickTime: now.getTime() + INITIAL_TICK_RATE,
               tickRate: INITIAL_TICK_RATE,
               bubbles: [],
               gameState: 'running',
               currentGame: gameSchema.parse(newGame),
-            },
+              oldGames: [state.currentGame, ...state.oldGames],
+            }),
             undefined,
             'reset'
           )
