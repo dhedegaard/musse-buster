@@ -4,15 +4,15 @@ import { memo, useEffect } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { BubbleCircle } from '../components/BubbleCircle'
 import { BOARD_HEIGHT, BOARD_WIDTH } from '../models/consts'
-import { useCircles } from '../stores/circles'
+import { useGameStore } from '../stores/game-store'
 import { BottomBar } from './BottomBar'
 
 // TODO: Make it variable and increase with the level.
 const TICK_TIME = 5_200 as const
 
 export const Board = memo(function Board() {
-  const bubbles = useCircles(useShallow((state) => state.bubbles))
-  const addBubbleLine = useCircles(useShallow((state) => state.addBubbleLine))
+  const bubbles = useGameStore(useShallow((state) => state.bubbles))
+  const addBubbleLine = useGameStore(useShallow((state) => state.addBubbleLine))
 
   useEffect(() => {
     // TODO: Replace with a RAF, and the interval should be dynamic with a "level".

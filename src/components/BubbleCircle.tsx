@@ -2,7 +2,7 @@ import clsx from 'clsx'
 import { memo, useCallback, useMemo } from 'react'
 import { Bubble } from '../models/bubble'
 import { BOARD_HEIGHT } from '../models/consts'
-import { useCircles } from '../stores/circles'
+import { useGameStore } from '../stores/game-store'
 
 interface Props {
   bubble: Bubble
@@ -10,7 +10,7 @@ interface Props {
 
 export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
   const handleClick = useCallback(() => {
-    useCircles.getState().clickBubble(bubble.key)
+    useGameStore.getState().clickBubble(bubble.key)
   }, [])
 
   const x = bubble.x

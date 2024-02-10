@@ -3,7 +3,7 @@ import { Bubble, bubbleSchema } from '../models/bubble'
 import { colorSchema } from '../models/color'
 import { BOARD_WIDTH } from '../models/consts'
 
-interface CirclesStore {
+interface GameStore {
   bubbles: Bubble[]
 
   addBubbleLine: () => void
@@ -11,7 +11,7 @@ interface CirclesStore {
   applyGravity: () => void
 }
 
-export const useCircles = create<CirclesStore>()((set, get) => ({
+export const useGameStore = create<GameStore>()((set, get) => ({
   bubbles: [],
 
   addBubbleLine() {
@@ -99,7 +99,7 @@ export const useCircles = create<CirclesStore>()((set, get) => ({
   },
 }))
 
-useCircles.getState().addBubbleLine()
-useCircles.getState().addBubbleLine()
-useCircles.getState().addBubbleLine()
-useCircles.getState().addBubbleLine()
+useGameStore.getState().addBubbleLine()
+useGameStore.getState().addBubbleLine()
+useGameStore.getState().addBubbleLine()
+useGameStore.getState().addBubbleLine()
