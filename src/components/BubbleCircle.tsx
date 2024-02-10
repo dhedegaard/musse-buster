@@ -13,11 +13,7 @@ interface Props {
 
 export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
   const clickBubble = useGameStore(useShallow((state) => state.clickBubble))
-  const handleClick = useCallback(() => {
-    clickBubble(bubble.key)
-  }, [bubble.key, clickBubble])
 
-  const x = useMemo(() => bubble.x, [bubble.x])
   const currentY = useMemo(() => BOARD_HEIGHT - bubble.y - 1, [bubble.y])
   const [deferredY, setDeferredY] = useState(currentY)
 
@@ -40,10 +36,12 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
         width={1}
         height={1}
         className="opacity-0 cursor-pointer"
-        onMouseDown={handleClick}
+        onMouseDown={useCallback(() => {
+          clickBubble(bubble.key)
+        }, [bubble.key, clickBubble])}
       />
       <circle
-        cx={x + 0.5}
+        cx={bubble.x + 0.5}
         cy={deferredY + 0.5}
         width={1}
         height={1}
