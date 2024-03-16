@@ -12,12 +12,12 @@
     {
       "src": "/favicon.png",
       "type": "image/png",
-      "sizes": "198x199"
+      "sizes": "199x199"
     },
     {
       "src": "/favicon-128.png",
       "type": "image/png",
-      "sizes": "127x128"
+      "sizes": "128x128"
     }
   ]
 }
