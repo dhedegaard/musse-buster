@@ -38,12 +38,12 @@ export const HighScore = memo(function HighScore() {
       <div className="text-xl font-bold w-full border-b border-solid border-b-slate-700 mb-4">
         Highscore:
       </div>
-      {allGames.map((game) => (
-        <div
-          key={game.key}
-          className={clsx(game.type === 'current' && 'text-blue-700 font-semibold')}
-        >
-          {game.score.toLocaleString()}
+      {allGames.map((game, index) => (
+        <div key={game.key} className="flex items-center justify-between">
+          <div className="text-sm text-base-content">{index + 1}.</div>
+          <div className={clsx(game.type === 'current' && 'text-blue-700 font-semibold underline')}>
+            {game.score.toLocaleString()}
+          </div>
         </div>
       ))}
     </div>
