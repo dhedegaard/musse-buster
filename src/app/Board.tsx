@@ -1,7 +1,7 @@
 'use client'
 
 import clsx from 'clsx'
-import { ReactNode, memo, useEffect } from 'react'
+import { MouseEventHandler, ReactNode, memo, useCallback, useEffect } from 'react'
 import { match } from 'ts-pattern'
 import { useShallow } from 'zustand/react/shallow'
 import { BubbleCircle } from '../components/BubbleCircle'
@@ -9,16 +9,17 @@ import { BOARD_HEIGHT, BOARD_WIDTH } from '../models/consts'
 import { useGameStore } from '../stores/game-store'
 import { BottomBar } from './BottomBar'
 import { CurrentScore } from './CurrentScore'
-import { SideButtons } from './SideButtons'
 import { HighScore } from './HighScore'
+import { SideButtons } from './SideButtons'
 
 export const Board = memo(function Board() {
   const bubbles = useGameStore(useShallow((state) => state.bubbles))
   const nextTickTime = useGameStore(useShallow((state) => state.nextTickTime))
   const gameState = useGameStore(useShallow((state) => state.gameState))
 
-  const addBubbleLine = useGameStore(useShallow((state) => state.addBubbleLine))
-  const reset = useGameStore(useShallow((state) => state.reset))
+  const reset = useCallback(() => {
+    useGameStore.getState().reset()
+  }, [])
 
   useEffect(() => {
     if (gameState !== 'running') {
@@ -28,7 +29,7 @@ export const Board = memo(function Board() {
     const frameCallback = () => {
       const now = Date.now()
       if (now >= nextTickTime) {
-        addBubbleLine()
+        useGameStore.getState().addBubbleLine()
       }
       rafHandle = requestAnimationFrame(frameCallback)
     }
@@ -36,7 +37,7 @@ export const Board = memo(function Board() {
     return () => {
       cancelAnimationFrame(rafHandle)
     }
-  }, [addBubbleLine, gameState, nextTickTime])
+  }, [gameState, nextTickTime])
 
   const togglePause = useGameStore(useShallow((state) => state.togglePause))
   useEffect(
@@ -98,6 +99,19 @@ export const Board = memo(function Board() {
     [gameState, togglePause]
   )
 
+  const handleClickGameOverlay = useCallback<MouseEventHandler<HTMLElement>>(() => {
+    match(gameState)
+      .returnType<unknown>()
+      .with('running', () => {})
+      .with('paused', () => {
+        useGameStore.getState().togglePause()
+      })
+      .with('game-over', 'main-menu', () => {
+        useGameStore.getState().reset()
+      })
+      .exhaustive()
+  }, [gameState])
+
   return (
     <main className="box-border mx-auto my-4 flex flex-col gap-4 items-stretch h-[calc(100vh-64px)] w-[60vh] relative">
       <div className="absolute right-full top-0 flex flex-col items-end gap-4 m-4">
@@ -133,11 +147,7 @@ export const Board = memo(function Board() {
         <button
           type="button"
           className="absolute top-0 left-0 right-0 bottom-0 bg-white bg-opacity-70 flex flex-col items-center justify-center gap-4 select-none cursor-pointer"
-          onClick={match(gameState)
-            .returnType<() => void>()
-            .with('paused', () => togglePause)
-            .with('game-over', 'main-menu', () => reset)
-            .exhaustive()}
+          onClick={handleClickGameOverlay}
         >
           {match(gameState)
             .returnType<ReactNode>()
