@@ -1,16 +1,20 @@
 'use client'
 
 import { ArrowPathIcon, PauseIcon, PlayIcon } from '@heroicons/react/16/solid'
-import { memo } from 'react'
+import { memo, useCallback } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useGameStore } from '../stores/game-store'
 
 export const SideButtons = memo(function SideButtons() {
   const gameState = useGameStore(useShallow((state) => state.gameState))
 
-  const reset = useGameStore(useShallow((state) => state.reset))
+  const handleClickReset = useCallback(() => {
+    useGameStore.getState().reset()
+  }, [])
 
-  const togglePause = useGameStore(useShallow((state) => state.togglePause))
+  const handleClicktogglePause = useCallback(() => {
+    useGameStore.getState().togglePause()
+  }, [])
 
   if (gameState === 'main-menu' || gameState === 'game-over') {
     return null
@@ -20,7 +24,7 @@ export const SideButtons = memo(function SideButtons() {
     <div className="absolute left-full top-0 m-4 flex flex-col gap-2 items-start w-full">
       <button
         type="button"
-        onClick={togglePause}
+        onClick={handleClicktogglePause}
         className="btn btn-primary btn-sm text-white whitespace-nowrap flex items-center gap-1"
       >
         {gameState === 'paused' ? (
@@ -35,7 +39,7 @@ export const SideButtons = memo(function SideButtons() {
       </button>
       <button
         type="button"
-        onClick={reset}
+        onClick={handleClickReset}
         className="btn btn-error btn-sm text-white whitespace-nowrap flex items-center gap-1"
       >
         <ArrowPathIcon width={16} />

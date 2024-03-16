@@ -1,7 +1,6 @@
 import clsx from 'clsx'
 import { CSSProperties, memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { P, match } from 'ts-pattern'
-import { useShallow } from 'zustand/react/shallow'
 import { Bubble } from '../models/bubble'
 import { BOARD_HEIGHT } from '../models/consts'
 import { useGameStore } from '../stores/game-store'
@@ -12,8 +11,6 @@ interface Props {
 }
 
 export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
-  const clickBubble = useGameStore(useShallow((state) => state.clickBubble))
-
   const currentY = useMemo(() => BOARD_HEIGHT - bubble.y - 1, [bubble.y])
   const [deferredY, setDeferredY] = useState(currentY)
 
@@ -37,8 +34,8 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
         height={1}
         className="opacity-0 cursor-pointer"
         onMouseDown={useCallback(() => {
-          clickBubble(bubble.key)
-        }, [bubble.key, clickBubble])}
+          useGameStore.getState().clickBubble(bubble.key)
+        }, [bubble.key])}
       />
       <circle
         cx={bubble.x + 0.5}
