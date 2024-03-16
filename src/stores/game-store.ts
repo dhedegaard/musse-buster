@@ -27,13 +27,13 @@ const INITIAL_TICK_RATE = 5_200
 
 export const useGameStore = create<GameStore>()(
   devtools(
-    persist(
+    persist<GameStore>(
       (set, get) => ({
         prevTickTime: -1,
         nextTickTime: -1,
         tickRate: INITIAL_TICK_RATE,
         bubbles: [],
-        gameState: 'main-menu',
+        gameState: 'main-menu' as const,
         currentGame: {
           key: crypto.randomUUID(),
           score: 0,
@@ -58,112 +58,100 @@ export const useGameStore = create<GameStore>()(
             return bubbleSchema.parse(newBubble)
           })
           const now = Date.now()
-          set(
-            (state) => {
-              if (state.bubbles.some((b) => b.y + 1 >= BOARD_HEIGHT)) {
-                return {
-                  gameState: 'game-over',
-                }
-              }
+          set((state) => {
+            if (state.bubbles.some((b) => b.y + 1 >= BOARD_HEIGHT)) {
               return {
-                prevTickTime: now,
-                nextTickTime: now + state.tickRate,
-                bubbles: [
-                  ...newBubbles,
-                  ...state.bubbles.map((oldBubble) => {
-                    const newBubble: Bubble = {
-                      key: oldBubble.key,
-                      x: oldBubble.x,
-                      y: oldBubble.y + 1,
-                      color: oldBubble.color,
-                      animation: 'pushed-up',
-                    }
-                    return bubbleSchema.parse(newBubble)
-                  }),
-                ],
+                gameState: 'game-over',
               }
-            },
-            undefined,
-            'addBubbleLine'
-          )
+            }
+            return {
+              prevTickTime: now,
+              nextTickTime: now + state.tickRate,
+              bubbles: [
+                ...newBubbles,
+                ...state.bubbles.map((oldBubble) => {
+                  const newBubble: Bubble = {
+                    key: oldBubble.key,
+                    x: oldBubble.x,
+                    y: oldBubble.y + 1,
+                    color: oldBubble.color,
+                    animation: 'pushed-up',
+                  }
+                  return bubbleSchema.parse(newBubble)
+                }),
+              ],
+            }
+          })
         },
         clickBubble(key) {
           let changed = false
-          set(
-            (state) => {
-              const clickedBubble = state.bubbles.find((bubble) => bubble.key === key)
-              if (clickedBubble == null) {
-                return {}
+          set((state) => {
+            const clickedBubble = state.bubbles.find((bubble) => bubble.key === key)
+            if (clickedBubble == null) {
+              return {}
+            }
+            const queue: Bubble[] = [clickedBubble]
+            const { color } = clickedBubble
+            const seenKeys = new Set<string>()
+            while (queue.length > 0) {
+              const bubble = queue.pop()
+              if (bubble == null || seenKeys.has(bubble.key)) {
+                continue
               }
-              const queue: Bubble[] = [clickedBubble]
-              const { color } = clickedBubble
-              const seenKeys = new Set<string>()
-              while (queue.length > 0) {
-                const bubble = queue.pop()
-                if (bubble == null || seenKeys.has(bubble.key)) {
-                  continue
-                }
-                seenKeys.add(bubble.key)
-                const neighbors = state.bubbles.filter(
-                  (b) =>
-                    ((Math.abs(b.x - bubble.x) === 1 && b.y === bubble.y) ||
-                      (Math.abs(b.y - bubble.y) === 1 && b.x === bubble.x)) &&
-                    b.color === color
-                )
-                queue.push(...neighbors)
-              }
-              if (seenKeys.size < 3) {
-                return {}
-              }
-              changed = true
-              const updatedCurrentGame: Game = {
-                key: state.currentGame.key,
-                score: state.currentGame.score + seenKeys.size,
-                startedAt: state.currentGame.startedAt,
-              }
-              return {
-                bubbles: state.bubbles.filter((b) => !seenKeys.has(b.key)),
-                currentGame: gameSchema.parse(updatedCurrentGame),
-              }
-            },
-            undefined,
-            `clickBubble ${key}`
-          )
+              seenKeys.add(bubble.key)
+              const neighbors = state.bubbles.filter(
+                (b) =>
+                  ((Math.abs(b.x - bubble.x) === 1 && b.y === bubble.y) ||
+                    (Math.abs(b.y - bubble.y) === 1 && b.x === bubble.x)) &&
+                  b.color === color
+              )
+              queue.push(...neighbors)
+            }
+            if (seenKeys.size < 3) {
+              return {}
+            }
+            changed = true
+            const updatedCurrentGame: Game = {
+              key: state.currentGame.key,
+              score: state.currentGame.score + seenKeys.size,
+              startedAt: state.currentGame.startedAt,
+            }
+            return {
+              bubbles: state.bubbles.filter((b) => !seenKeys.has(b.key)),
+              currentGame: gameSchema.parse(updatedCurrentGame),
+            }
+          })
           // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
           if (changed) {
             get().applyGravity()
           }
         },
         applyGravity() {
-          set(
-            ({ bubbles }) => {
-              let sortedBubbles = bubbles.toSorted((a, b) => a.y - b.y)
-              let changed = true
-              while (changed) {
-                changed = false
-                sortedBubbles = sortedBubbles.map((bubble) => {
-                  if (
-                    bubble.y > 0 &&
-                    !sortedBubbles.some((b) => b.x === bubble.x && b.y === bubble.y - 1)
-                  ) {
-                    changed = true
-                    const newBubble: Bubble = {
-                      key: bubble.key,
-                      x: bubble.x,
-                      y: bubble.y - 1,
-                      color: bubble.color,
-                      animation: 'fall',
-                    }
-                    return newBubble
+          set(({ bubbles }) => {
+            let sortedBubbles = bubbles.toSorted((a, b) => a.y - b.y)
+            let changed = true
+            while (changed) {
+              changed = false
+              sortedBubbles = sortedBubbles.map((bubble) => {
+                if (
+                  bubble.y > 0 &&
+                  !sortedBubbles.some((b) => b.x === bubble.x && b.y === bubble.y - 1)
+                ) {
+                  changed = true
+                  const newBubble: Bubble = {
+                    key: bubble.key,
+                    x: bubble.x,
+                    y: bubble.y - 1,
+                    color: bubble.color,
+                    animation: 'fall',
                   }
-                  return bubble
-                })
-              }
-              return { bubbles: [...sortedBubbles] }
-            },
-            undefined,
-            'applyGravity'
-          )
+                  return newBubble
+                }
+                return bubble
+              })
+            }
+            return { bubbles: [...sortedBubbles] }
+          })
         },
         reset() {
           const now = new Date()
@@ -172,43 +160,35 @@ export const useGameStore = create<GameStore>()(
             score: 0,
             startedAt: now.toISOString(),
           }
-          set(
-            (state) => ({
-              prevTickTime: now.getTime(),
-              nextTickTime: now.getTime() + INITIAL_TICK_RATE,
-              tickRate: INITIAL_TICK_RATE,
-              bubbles: [],
-              gameState: 'running',
-              currentGame: gameSchema.parse(newGame),
-              oldGames: [state.currentGame, ...state.oldGames],
-            }),
-            undefined,
-            'reset'
-          )
+          set((state) => ({
+            prevTickTime: now.getTime(),
+            nextTickTime: now.getTime() + INITIAL_TICK_RATE,
+            tickRate: INITIAL_TICK_RATE,
+            bubbles: [],
+            gameState: 'running',
+            currentGame: gameSchema.parse(newGame),
+            oldGames: [state.currentGame, ...state.oldGames],
+          }))
           get().addBubbleLine()
           get().addBubbleLine()
           get().addBubbleLine()
           get().addBubbleLine()
         },
         togglePause() {
-          set(
-            (state) => {
-              if (state.gameState === 'running') {
-                return { gameState: 'paused' }
-              } else if (state.gameState === 'paused') {
-                const now = Date.now()
-                return {
-                  gameState: 'running',
-                  prevTickTime: now,
-                  nextTickTime: now + state.tickRate,
-                }
-              } else {
-                return {}
+          set((state) => {
+            if (state.gameState === 'running') {
+              return { gameState: 'paused' }
+            } else if (state.gameState === 'paused') {
+              const now = Date.now()
+              return {
+                gameState: 'running',
+                prevTickTime: now,
+                nextTickTime: now + state.tickRate,
               }
-            },
-            undefined,
-            'togglePause'
-          )
+            } else {
+              return {}
+            }
+          })
         },
       }),
       { name: 'musse-buster-v0' }
