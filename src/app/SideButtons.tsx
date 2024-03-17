@@ -16,7 +16,7 @@ export const SideButtons = memo(function SideButtons() {
     useGameStore.getState().togglePause()
   }, [])
 
-  if (gameState === 'main-menu' || gameState === 'game-over') {
+  if (gameState === 'main-menu') {
     return null
   }
 
@@ -25,6 +25,7 @@ export const SideButtons = memo(function SideButtons() {
       <button
         type="button"
         onClick={handleClicktogglePause}
+        disabled={gameState === 'game-over'}
         className="btn btn-primary btn-sm text-white whitespace-nowrap flex items-center gap-1"
       >
         {gameState === 'paused' ? (
