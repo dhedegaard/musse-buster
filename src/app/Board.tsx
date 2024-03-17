@@ -50,6 +50,9 @@ export const Board = memo(function Board() {
             if (event.key === 'n') {
               useGameStore.getState().reset()
             }
+            if (event.key === 'ArrowUp') {
+              useGameStore.getState().addBubbleLine()
+            }
           }
           window.document.addEventListener('keydown', handle)
           return () => {
