@@ -17,10 +17,6 @@ export const Board = memo(function Board() {
   const nextTickTime = useGameStore(useShallow((state) => state.nextTickTime))
   const gameState = useGameStore(useShallow((state) => state.gameState))
 
-  const reset = useCallback(() => {
-    useGameStore.getState().reset()
-  }, [])
-
   useEffect(() => {
     if (gameState !== 'running') {
       return
@@ -39,7 +35,6 @@ export const Board = memo(function Board() {
     }
   }, [gameState, nextTickTime])
 
-  const togglePause = useGameStore(useShallow((state) => state.togglePause))
   useEffect(
     () =>
       match(gameState)
@@ -50,10 +45,10 @@ export const Board = memo(function Board() {
               return
             }
             if (event.key === 'p' || event.key === ' ') {
-              togglePause()
+              useGameStore.getState().togglePause()
             }
-            if (event.key === 'r') {
-              reset()
+            if (event.key === 'n') {
+              useGameStore.getState().reset()
             }
           }
           window.document.addEventListener('keydown', handle)
@@ -66,8 +61,8 @@ export const Board = memo(function Board() {
             if (event.metaKey || event.ctrlKey) {
               return
             }
-            if (event.key === 'r' || event.key === ' ') {
-              reset()
+            if (event.key === 'n' || event.key === ' ') {
+              useGameStore.getState().reset()
             }
           }
           window.document.addEventListener('keydown', handle)
@@ -76,7 +71,7 @@ export const Board = memo(function Board() {
           }
         })
         .exhaustive(),
-    [gameState, reset, togglePause]
+    [gameState]
   )
 
   useEffect(
@@ -87,7 +82,7 @@ export const Board = memo(function Board() {
         .with('running', () => {
           const handle = () => {
             if (document.hidden) {
-              togglePause()
+              useGameStore.getState().togglePause()
             }
           }
           window.document.addEventListener('visibilitychange', handle)
@@ -96,7 +91,7 @@ export const Board = memo(function Board() {
           }
         })
         .exhaustive(),
-    [gameState, togglePause]
+    [gameState]
   )
 
   const handleClickGameOverlay = useCallback<MouseEventHandler<HTMLElement>>(() => {

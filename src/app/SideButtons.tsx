@@ -40,10 +40,10 @@ export const SideButtons = memo(function SideButtons() {
       <button
         type="button"
         onClick={handleClickReset}
-        className="btn btn-error btn-sm text-white whitespace-nowrap flex items-center gap-1"
+        className="btn btn-success btn-sm text-white whitespace-nowrap flex items-center gap-1"
       >
         <ArrowPathIcon width={16} />
-        <div>Reset (R)</div>
+        <div>New game (N)</div>
       </button>
     </div>
   )
