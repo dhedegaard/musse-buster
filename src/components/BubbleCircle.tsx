@@ -42,8 +42,8 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
         cy={deferredY + 0.5}
         width={1}
         height={1}
-        r={0.5 - 0.025}
-        strokeWidth={0.05}
+        r={0.5 - 0.03}
+        strokeWidth={0.1}
         style={useMemo<CSSProperties>(
           () => ({
             transitionDuration: match({ animation: bubble.animation, lastFallDelta })
@@ -65,6 +65,18 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
           bubble.type === 'bomb' && 'stroke-black'
         )}
       />
+      {bubble.type === 'bomb' && (
+        <text
+          x={bubble.x + 0.5}
+          y={deferredY + 0.5}
+          textAnchor="middle"
+          dominantBaseline="middle"
+          fontSize="0.6"
+          className="select-none pointer-events-none"
+        >
+          💣
+        </text>
+      )}
     </>
   )
 })
