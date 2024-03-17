@@ -69,6 +69,8 @@ export const useGameStore = create<GameStore>()(
             return {
               prevTickTime: now,
               nextTickTime: now + state.tickRate,
+              // TODO: Refine this later!
+              tickRate: Math.max(500, INITIAL_TICK_RATE - Math.floor(state.currentGame.score * 5)),
               bubbles: [
                 ...newBubbles,
                 ...state.bubbles.map((oldBubble) => {
