@@ -42,8 +42,8 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
         cy={deferredY + 0.5}
         width={1}
         height={1}
-        r={0.5}
-        strokeWidth={0.005}
+        r={0.5 - 0.025}
+        strokeWidth={0.05}
         style={useMemo<CSSProperties>(
           () => ({
             transitionDuration: match({ animation: bubble.animation, lastFallDelta })
@@ -60,7 +60,9 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
           bubble.color === 'red' && 'fill-rose-600',
           bubble.color === 'blue' && 'fill-sky-700',
           bubble.color === 'green' && 'fill-lime-500',
-          bubble.color === 'yellow' && 'fill-amber-400'
+          bubble.color === 'yellow' && 'fill-amber-400',
+          bubble.type === 'normal' && 'stroke-transparent',
+          bubble.type === 'bomb' && 'stroke-black'
         )}
       />
     </>

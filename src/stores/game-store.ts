@@ -1,4 +1,5 @@
 import type {} from '@redux-devtools/extension'
+import { match } from 'ts-pattern'
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 import { Bubble, bubbleSchema } from '../models/bubble'
@@ -50,6 +51,7 @@ export const useGameStore = create<GameStore>()(
             }
             const newBubble: Bubble = {
               key: crypto.randomUUID(),
+              type: Math.random() <= 0.015 ? 'bomb' : 'normal',
               x,
               y: 0,
               color,
@@ -72,6 +74,7 @@ export const useGameStore = create<GameStore>()(
                 ...state.bubbles.map((oldBubble) => {
                   const newBubble: Bubble = {
                     key: oldBubble.key,
+                    type: oldBubble.type,
                     x: oldBubble.x,
                     y: oldBubble.y + 1,
                     color: oldBubble.color,
@@ -90,36 +93,64 @@ export const useGameStore = create<GameStore>()(
             if (clickedBubble == null) {
               return {}
             }
-            const queue: Bubble[] = [clickedBubble]
-            const { color } = clickedBubble
-            const seenKeys = new Set<string>()
-            while (queue.length > 0) {
-              const bubble = queue.pop()
-              if (bubble == null || seenKeys.has(bubble.key)) {
-                continue
-              }
-              seenKeys.add(bubble.key)
-              const neighbors = state.bubbles.filter(
-                (b) =>
-                  ((Math.abs(b.x - bubble.x) === 1 && b.y === bubble.y) ||
-                    (Math.abs(b.y - bubble.y) === 1 && b.x === bubble.x)) &&
-                  b.color === color
-              )
-              queue.push(...neighbors)
-            }
-            if (seenKeys.size < 3) {
-              return {}
-            }
-            changed = true
-            const updatedCurrentGame: Game = {
-              key: state.currentGame.key,
-              score: state.currentGame.score + seenKeys.size,
-              startedAt: state.currentGame.startedAt,
-            }
-            return {
-              bubbles: state.bubbles.filter((b) => !seenKeys.has(b.key)),
-              currentGame: gameSchema.parse(updatedCurrentGame),
-            }
+
+            return match(clickedBubble)
+              .returnType<GameStore | Partial<GameStore>>()
+              .with({ type: 'bomb' }, (clickedBubble) => {
+                const newBubbles = state.bubbles
+                  // Remove the clicked bomb
+                  .filter((b) => b.key !== clickedBubble.key)
+                  // Remove all normal bubbles of the same color.
+                  .filter((b) => !(b.color === clickedBubble.color && b.type === 'normal'))
+                const currentGame: Game = {
+                  key: state.currentGame.key,
+                  score: state.currentGame.score + (state.bubbles.length - newBubbles.length),
+                  startedAt: state.currentGame.startedAt,
+                }
+                changed = true
+                return {
+                  bubbles: state.bubbles
+                    // Remove the clicked bomb
+                    .filter((b) => b.key !== clickedBubble.key)
+                    // Remove all normal bubbles of the same color.
+                    .filter((b) => !(b.color === clickedBubble.color && b.type === 'normal')),
+                  currentGame,
+                }
+              })
+              .with({ type: 'normal' }, (clickedBubble) => {
+                const queue: Bubble[] = [clickedBubble]
+                const { color } = clickedBubble
+                const seenKeys = new Set<string>()
+                while (queue.length > 0) {
+                  const bubble = queue.pop()
+                  if (bubble == null || seenKeys.has(bubble.key)) {
+                    continue
+                  }
+                  seenKeys.add(bubble.key)
+                  const neighbors = state.bubbles.filter(
+                    (b) =>
+                      ((Math.abs(b.x - bubble.x) === 1 && b.y === bubble.y) ||
+                        (Math.abs(b.y - bubble.y) === 1 && b.x === bubble.x)) &&
+                      b.color === color &&
+                      b.type === 'normal'
+                  )
+                  queue.push(...neighbors)
+                }
+                if (seenKeys.size < 3) {
+                  return {}
+                }
+                changed = true
+                const updatedCurrentGame: Game = {
+                  key: state.currentGame.key,
+                  score: state.currentGame.score + seenKeys.size,
+                  startedAt: state.currentGame.startedAt,
+                }
+                return {
+                  bubbles: state.bubbles.filter((b) => !seenKeys.has(b.key)),
+                  currentGame: gameSchema.parse(updatedCurrentGame),
+                }
+              })
+              .exhaustive()
           })
           // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
           if (changed) {
@@ -140,6 +171,7 @@ export const useGameStore = create<GameStore>()(
                   changed = true
                   const newBubble: Bubble = {
                     key: bubble.key,
+                    type: bubble.type,
                     x: bubble.x,
                     y: bubble.y - 1,
                     color: bubble.color,
