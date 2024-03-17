@@ -120,7 +120,7 @@ export const useGameStore = create<GameStore>()(
                     .filter((b) => b.key !== clickedBubble.key)
                     // Remove all normal bubbles of the same color.
                     .filter((b) => !(b.color === clickedBubble.color && b.type === 'normal')),
-                  currentGame,
+                  currentGame: gameSchema.parse(currentGame),
                 }
               })
               .with({ type: 'normal' }, (clickedBubble) => {
@@ -183,7 +183,7 @@ export const useGameStore = create<GameStore>()(
                     color: bubble.color,
                     animation: 'fall',
                   }
-                  return newBubble
+                  return bubbleSchema.parse(newBubble)
                 }
                 return bubble
               })
