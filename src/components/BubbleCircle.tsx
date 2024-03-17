@@ -75,8 +75,11 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
           textAnchor="middle"
           dominantBaseline="middle"
           fontSize="0.6"
-          className="select-none pointer-events-none"
-          // TODO: Fix the transition here later.
+          className={clsx(
+            styles['Circle'],
+            'select-none pointer-events-none',
+            bubble.animation === 'spawning' && 'animate-spawn'
+          )}
           style={styleObj}
         >
           💣
