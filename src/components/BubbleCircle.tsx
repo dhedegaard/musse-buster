@@ -25,6 +25,17 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
     }
   }, [bubble.animation, currentY, deferredY])
 
+  const styleObj = useMemo<CSSProperties>(
+    () => ({
+      transitionDuration: match({ animation: bubble.animation, lastFallDelta })
+        .returnType<CSSProperties['transitionDuration']>()
+        .with({ animation: 'fall' }, () => `${lastFallDelta * 150}ms`)
+        .with({ animation: P.union('pushed-up', 'spawning') }, () => '0ms')
+        .exhaustive(),
+    }),
+    [bubble.animation, lastFallDelta]
+  )
+
   return (
     <>
       <rect
@@ -37,6 +48,7 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
           useGameStore.getState().clickBubble(bubble.key)
         }, [bubble.key])}
       />
+
       <circle
         cx={bubble.x + 0.5}
         cy={deferredY + 0.5}
@@ -44,16 +56,7 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
         height={1}
         r={0.5 - 0.03}
         strokeWidth={0.1}
-        style={useMemo<CSSProperties>(
-          () => ({
-            transitionDuration: match({ animation: bubble.animation, lastFallDelta })
-              .returnType<CSSProperties['transitionDuration']>()
-              .with({ animation: 'fall' }, () => `${lastFallDelta * 150}ms`)
-              .with({ animation: P.union('pushed-up', 'spawning') }, () => '0ms')
-              .exhaustive(),
-          }),
-          [bubble.animation, lastFallDelta]
-        )}
+        style={styleObj}
         className={clsx(
           styles['Circle'],
           bubble.animation === 'spawning' && 'animate-spawn',
@@ -73,6 +76,8 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
           dominantBaseline="middle"
           fontSize="0.6"
           className="select-none pointer-events-none"
+          // TODO: Fix the transition here later.
+          style={styleObj}
         >
           💣
         </text>
