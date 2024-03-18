@@ -68,8 +68,8 @@ export const useGameStore = create<GameStore>()(
             }
             // TODO: Refine this later!
             const newTickRate = Math.max(
-              1_000,
-              INITIAL_TICK_RATE - Math.floor(state.currentGame.score * 4)
+              1_500,
+              INITIAL_TICK_RATE - Math.floor(state.currentGame.score * 3)
             )
             return {
               prevTickTime: now,
