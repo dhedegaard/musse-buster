@@ -24,11 +24,17 @@ export const BottomBar = memo(function BottomBar() {
     }
     const duration = nextTickTime - prevTickTime
     const animateHandle = div.animate(keyframe, { duration, easing: 'linear' })
-    const percent = match(gameState)
-      .returnType<number>()
-      .with('running', () => (Date.now() - prevTickTime) / (nextTickTime - prevTickTime))
-      .with('paused', () => (pausedTickDelta ?? 0) / duration)
-      .exhaustive()
+    const percent = Math.min(
+      1,
+      Math.max(
+        0,
+        match(gameState)
+          .returnType<number>()
+          .with('running', () => (Date.now() - prevTickTime) / (nextTickTime - prevTickTime))
+          .with('paused', () => (pausedTickDelta ?? 0) / duration)
+          .exhaustive()
+      )
+    )
     animateHandle.currentTime = duration * percent
     if (gameState === 'paused') {
       animateHandle.pause()
