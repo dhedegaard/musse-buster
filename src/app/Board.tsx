@@ -125,7 +125,7 @@ export const Board = memo(function Board() {
           gameState === 'paused' ? 'grayscale' : 'grayscale-0'
         )}
       >
-        <svg viewBox={`0 0 ${BOARD_WIDTH} ${BOARD_HEIGHT}`} width="100%">
+        <svg viewBox={`0 0 ${BOARD_WIDTH.toString()} ${BOARD_HEIGHT.toString()}`} width="100%">
           <rect
             x={0}
             y={0}

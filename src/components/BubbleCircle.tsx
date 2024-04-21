@@ -29,7 +29,7 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
     () => ({
       transitionDuration: match({ animation: bubble.animation, lastFallDelta })
         .returnType<CSSProperties['transitionDuration']>()
-        .with({ animation: 'fall' }, () => `${lastFallDelta * 150}ms`)
+        .with({ animation: 'fall' }, () => `${(lastFallDelta * 150).toString()}ms`)
         .with({ animation: P.union('pushed-up', 'spawning') }, () => '0ms')
         .exhaustive(),
     }),
