@@ -144,7 +144,7 @@ export const Board = memo(function Board() {
       {gameState !== 'running' && (
         <button
           type="button"
-          className="absolute bottom-0 left-0 right-0 top-0 flex cursor-pointer select-none flex-col items-center justify-center gap-4 bg-white bg-opacity-70"
+          className="absolute inset-0 flex cursor-pointer select-none flex-col items-center justify-center gap-4 bg-white/70"
           onClick={handleClickGameOverlay}
         >
           {match(gameState)

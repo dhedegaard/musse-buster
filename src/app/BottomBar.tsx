@@ -58,7 +58,7 @@ export const BottomBar = memo(function BottomBar() {
     >
       <div
         ref={ref}
-        className="pointer-events-none absolute bottom-0 left-0 top-0 w-0 transform-gpu bg-sky-500"
+        className="pointer-events-none absolute inset-y-0 left-0 w-0 transform-gpu bg-sky-500"
       />
     </button>
   )

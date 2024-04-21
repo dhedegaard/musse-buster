@@ -1,5 +1,10 @@
 {
-  "extends": ["plugin:@typescript-eslint/strict-type-checked", "next/core-web-vitals", "prettier"],
+  "extends": [
+    "plugin:@typescript-eslint/strict-type-checked",
+    "next/core-web-vitals",
+    "prettier",
+    "plugin:tailwindcss/recommended"
+  ],
   "parserOptions": {
     "project": "./tsconfig.json"
   },
