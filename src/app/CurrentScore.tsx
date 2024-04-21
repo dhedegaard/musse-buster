@@ -8,8 +8,8 @@ export const CurrentScore = memo(function CurrentScore() {
   const score = useGameStore(useShallow((state) => state.currentGame.score))
 
   return (
-    <div className="p-4 flex flex-col items-center gap-2 border border-solid border-slate-700 rounded-xl">
-      <div className="text-xl font-semibold whitespace-nowrap">Current score:</div>
+    <div className="flex flex-col items-center gap-2 rounded-xl border border-solid border-slate-700 p-4">
+      <div className="whitespace-nowrap text-xl font-semibold">Current score:</div>
       <div className="text-3xl font-bold">{score.toLocaleString()}</div>
     </div>
   )

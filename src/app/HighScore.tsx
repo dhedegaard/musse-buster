@@ -34,14 +34,14 @@ export const HighScore = memo(function HighScore() {
   )
 
   return (
-    <div className="border border-solid border-slate-700 p-4 rounded-xl">
-      <div className="text-xl font-bold w-full border-b border-solid border-b-slate-700 mb-4">
+    <div className="rounded-xl border border-solid border-slate-700 p-4">
+      <div className="mb-4 w-full border-b border-solid border-b-slate-700 text-xl font-bold">
         Highscore:
       </div>
       {allGames.map((game, index) => (
         <div key={game.key} className="flex items-center justify-between">
           <div className="text-sm text-base-content">{index + 1}.</div>
-          <div className={clsx(game.type === 'current' && 'text-blue-700 font-semibold underline')}>
+          <div className={clsx(game.type === 'current' && 'font-semibold text-blue-700 underline')}>
             {game.score.toLocaleString()}
           </div>
         </div>

@@ -2,5 +2,5 @@
   transform-box: fill-box;
   transition-duration: 0s;
   transform-origin: center;
-  @apply transform-gpu stroke-slate-700 pointer-events-none select-none origin-center transition-all ease-linear;
+  @apply pointer-events-none origin-center transform-gpu select-none stroke-slate-700 transition-all ease-linear;
 }

@@ -111,8 +111,8 @@ export const Board = memo(function Board() {
   }, [gameState])
 
   return (
-    <main className="box-border mx-auto my-4 flex flex-col gap-4 items-stretch h-[calc(100vh-64px)] w-[60vh] relative">
-      <div className="absolute right-full top-0 flex flex-col items-end gap-4 m-4">
+    <main className="relative mx-auto my-4 box-border flex h-[calc(100vh-64px)] w-[60vh] flex-col items-stretch gap-4">
+      <div className="absolute right-full top-0 m-4 flex flex-col items-end gap-4">
         <CurrentScore />
         <HighScore />
       </div>
@@ -121,7 +121,7 @@ export const Board = memo(function Board() {
 
       <div
         className={clsx(
-          `flex-auto transition-all aspect-[14/10]`,
+          `aspect-[14/10] flex-auto transition-all`,
           gameState === 'paused' ? 'grayscale' : 'grayscale-0'
         )}
       >
@@ -144,29 +144,29 @@ export const Board = memo(function Board() {
       {gameState !== 'running' && (
         <button
           type="button"
-          className="absolute top-0 left-0 right-0 bottom-0 bg-white bg-opacity-70 flex flex-col items-center justify-center gap-4 select-none cursor-pointer"
+          className="absolute bottom-0 left-0 right-0 top-0 flex cursor-pointer select-none flex-col items-center justify-center gap-4 bg-white bg-opacity-70"
           onClick={handleClickGameOverlay}
         >
           {match(gameState)
             .returnType<ReactNode>()
             .with('paused', () => (
               <>
-                <div className="font-bold text-3xl">Paused!</div>
-                <div className="font-bold text-xl">
+                <div className="text-3xl font-bold">Paused!</div>
+                <div className="text-xl font-bold">
                   Click here, or press &apos;P&apos;, to continue
                 </div>
               </>
             ))
             .with('game-over', () => (
               <>
-                <div className="font-bold text-3xl">GAME OVER!</div>
-                <div className="font-bold text-xl">Click here to start over</div>
+                <div className="text-3xl font-bold">GAME OVER!</div>
+                <div className="text-xl font-bold">Click here to start over</div>
               </>
             ))
             .with('main-menu', () => (
               <>
-                <div className="font-bold text-3xl">MUSSE BUSTER!</div>
-                <div className="font-bold text-xl">Click here to start a game</div>
+                <div className="text-3xl font-bold">MUSSE BUSTER!</div>
+                <div className="text-xl font-bold">Click here to start a game</div>
               </>
             ))
             .exhaustive()}

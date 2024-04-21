@@ -21,12 +21,12 @@ export const SideButtons = memo(function SideButtons() {
   }
 
   return (
-    <div className="absolute left-full top-0 m-4 flex flex-col gap-2 items-start w-full">
+    <div className="absolute left-full top-0 m-4 flex w-full flex-col items-start gap-2">
       <button
         type="button"
         onClick={handleClicktogglePause}
         disabled={gameState === 'game-over'}
-        className="btn btn-primary btn-sm text-white whitespace-nowrap flex items-center gap-1"
+        className="btn btn-primary btn-sm flex items-center gap-1 whitespace-nowrap text-white"
       >
         {gameState === 'paused' ? (
           <>
@@ -41,7 +41,7 @@ export const SideButtons = memo(function SideButtons() {
       <button
         type="button"
         onClick={handleClickReset}
-        className="btn btn-success btn-sm text-white whitespace-nowrap flex items-center gap-1"
+        className="btn btn-success btn-sm flex items-center gap-1 whitespace-nowrap text-white"
       >
         <ArrowPathIcon width={16} />
         <div>New game (N)</div>

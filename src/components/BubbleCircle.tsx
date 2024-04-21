@@ -43,7 +43,7 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
         y={currentY}
         width={1}
         height={1}
-        className="opacity-0 cursor-pointer"
+        className="cursor-pointer opacity-0"
         onMouseDown={useCallback(() => {
           useGameStore.getState().clickBubble(bubble.key)
         }, [bubble.key])}
@@ -77,7 +77,7 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
           fontSize="0.6"
           className={clsx(
             styles['Circle'],
-            'select-none pointer-events-none',
+            'pointer-events-none select-none',
             bubble.animation === 'spawning' && 'animate-spawn'
           )}
           style={styleObj}

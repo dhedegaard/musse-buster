@@ -52,13 +52,13 @@ export const BottomBar = memo(function BottomBar() {
       }, [gameState])}
       tabIndex={gameState === 'running' ? undefined : -1}
       className={clsx(
-        'box-border flex-none w-full h-[6vh] border-2 border-solid border-slate-700 relative cursor-pointer transition-all transform-gpu scale-100 active:scale-105',
+        'relative box-border h-[6vh] w-full flex-none scale-100 transform-gpu cursor-pointer border-2 border-solid border-slate-700 transition-all active:scale-105',
         gameState !== 'running' && 'pointer-events-none opacity-30'
       )}
     >
       <div
         ref={ref}
-        className="bg-sky-500 absolute top-0 bottom-0 left-0 w-0 pointer-events-none transform-gpu"
+        className="pointer-events-none absolute bottom-0 left-0 top-0 w-0 transform-gpu bg-sky-500"
       />
     </button>
   )
