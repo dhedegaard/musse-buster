@@ -11,6 +11,7 @@ interface GameStore {
   prevTickTime: number
   nextTickTime: number
   tickRate: number
+  pausedTickDelta: number
   gameState: 'main-menu' | 'running' | 'game-over' | 'paused'
   currentGame: Game
   oldGames: Game[]
@@ -34,6 +35,7 @@ export const useGameStore = create<GameStore>()(
         nextTickTime: -1,
         tickRate: INITIAL_TICK_RATE,
         bubbles: [],
+        pausedTickDelta: 0,
         gameState: 'main-menu' as const,
         currentGame: {
           key: crypto.randomUUID(),
@@ -215,13 +217,18 @@ export const useGameStore = create<GameStore>()(
         togglePause() {
           set((state) => {
             if (state.gameState === 'running') {
-              return { gameState: 'paused' }
+              const tickDelta = Date.now() - state.prevTickTime
+              return {
+                gameState: 'paused',
+                pausedTickDelta: tickDelta <= 0 || tickDelta > state.tickRate ? 0 : tickDelta,
+              }
             } else if (state.gameState === 'paused') {
-              const now = Date.now()
+              const newTickStart = Date.now() - state.pausedTickDelta
               return {
                 gameState: 'running',
-                prevTickTime: now,
-                nextTickTime: now + state.tickRate,
+                prevTickTime: newTickStart,
+                nextTickTime: newTickStart + state.tickRate,
+                pausedTickDelta: 0,
               }
             } else {
               return {}
