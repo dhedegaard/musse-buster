@@ -6,4 +6,4 @@ export const gameSchema = z.object({
   startedAt: z.string().datetime({ offset: true }),
 })
 
-export interface Game extends z.TypeOf<typeof gameSchema> {}
+export type Game = z.TypeOf<typeof gameSchema>

@@ -25,4 +25,4 @@ export const bubbleSchema = z.object({
   color: colorSchema,
   animation: z.enum(['spawning', 'pushed-up', 'fall']),
 })
-export interface Bubble extends z.TypeOf<typeof bubbleSchema> {}
+export type Bubble = z.TypeOf<typeof bubbleSchema>
