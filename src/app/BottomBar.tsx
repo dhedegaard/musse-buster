@@ -47,6 +47,7 @@ export const BottomBar = memo(function BottomBar() {
   return (
     <button
       type="button"
+      aria-label="add bubble line"
       onClick={useCallback(() => {
         match(gameState)
           .returnType<undefined>()
