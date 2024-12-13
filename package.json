@@ -19,7 +19,7 @@
     "react-dom": "19.0.0",
     "ts-pattern": "^5.5.0",
     "zod": "^3.24.1",
-    "zustand": "^4.5.5"
+    "zustand": "^5.0.2"
   },
   "devDependencies": {
     "@redux-devtools/extension": "^3.3.0",
