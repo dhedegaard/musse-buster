@@ -41,7 +41,7 @@ export const SideButtons = memo(function SideButtons() {
       <button
         type="button"
         onClick={handleClickReset}
-        className="btn btn-success btn-sm flex items-center gap-1 whitespace-nowrap text-white"
+        className="btn btn-success btn-sm flex items-center gap-1 whitespace-nowrap bg-green-700 text-white"
       >
         <ArrowPathIcon width={16} />
         <div>New game (N)</div>
