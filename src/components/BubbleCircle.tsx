@@ -55,7 +55,7 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
         width={1}
         height={1}
         r={0.5 - 0.03}
-        strokeWidth={0.1}
+        strokeWidth={0.025}
         style={styleObj}
         className={clsx(
           styles['Circle'],

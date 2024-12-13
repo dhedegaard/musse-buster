@@ -121,11 +121,15 @@ export const Board = memo(function Board() {
 
       <div
         className={clsx(
-          `aspect-[14/10] flex-auto transition-all`,
+          `aspect-[14/10] max-w-full flex-auto transition-all`,
           gameState === 'paused' ? 'grayscale' : 'grayscale-0'
         )}
       >
-        <svg viewBox={`0 0 ${BOARD_WIDTH.toString()} ${BOARD_HEIGHT.toString()}`} width="100%">
+        <svg
+          viewBox={`0 0 ${BOARD_WIDTH.toString()} ${BOARD_HEIGHT.toString()}`}
+          width="100%"
+          className="max-h-screen max-w-full"
+        >
           <rect
             x={0}
             y={0}
