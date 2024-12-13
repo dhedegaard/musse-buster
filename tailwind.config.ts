@@ -1,5 +1,7 @@
-/** @type {import('tailwindcss').Config} */
-module.exports = {
+import daisyui, { type Config as DaisyuiConfig } from 'daisyui'
+import type { Config } from 'tailwindcss'
+
+export default {
   content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
   theme: {
     extend: {
@@ -14,10 +16,9 @@ module.exports = {
       },
     },
   },
-  plugins: [require('daisyui')],
-  /** @type {import('daisyui').Config} */
+  plugins: [daisyui],
   daisyui: {
     themes: ['light'],
     logs: false,
-  },
-}
+  } satisfies DaisyuiConfig,
+} satisfies Config
