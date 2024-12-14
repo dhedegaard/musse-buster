@@ -1,6 +1,12 @@
-import { Metadata } from 'next'
+import { Metadata, type Viewport } from 'next'
 import { ReactNode } from 'react'
 
+export const viewport: Viewport = {
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'contain',
+}
 export const metadata: Metadata = {
   title: 'Musse buster!',
   description: 'A bubble buster game.',
