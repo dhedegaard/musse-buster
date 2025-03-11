@@ -53,7 +53,7 @@ export const useGameStore = create<GameStore>()(
               throw new Error('Color is null, bug in the code!')
             }
             const newBubble: Bubble = {
-              key: crypto.randomUUID(),
+              key: nanoid(),
               type: Math.random() <= 0.015 ? 'bomb' : 'normal',
               x,
               y: 0,
@@ -197,7 +197,7 @@ export const useGameStore = create<GameStore>()(
         reset() {
           const now = new Date()
           const newGame: Game = {
-            key: crypto.randomUUID(),
+            key: nanoid(),
             score: 0,
             startedAt: now.toISOString(),
           }
