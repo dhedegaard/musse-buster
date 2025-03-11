@@ -31,7 +31,7 @@
     "@types/react-dom": "19.0.4",
     "@typescript-eslint/eslint-plugin": "^8.26.1",
     "autoprefixer": "^10.4.21",
-    "daisyui": "^4.12.22",
+    "daisyui": "^4.12.24",
     "eslint": "9.22.0",
     "eslint-config-next": "15.2.2",
     "eslint-config-prettier": "^10.1.1",
