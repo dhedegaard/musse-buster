@@ -4,7 +4,7 @@ import { P, match } from 'ts-pattern'
 import { Bubble } from '../models/bubble'
 import { BOARD_HEIGHT } from '../models/consts'
 import { useGameStore } from '../stores/game-store'
-import styles from './BubbleCircle.module.css'
+import styles from './bubble-circle.module.css'
 
 interface Props {
   bubble: Bubble
@@ -25,7 +25,7 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
     }
   }, [bubble.animation, currentY, deferredY])
 
-  const styleObj = useMemo<CSSProperties>(
+  const styleObject = useMemo<CSSProperties>(
     () => ({
       transitionDuration: match({ animation: bubble.animation, lastFallDelta })
         .returnType<CSSProperties['transitionDuration']>()
@@ -56,7 +56,7 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
         height={1}
         r={0.5 - 0.03}
         strokeWidth={0.025}
-        style={styleObj}
+        style={styleObject}
         className={clsx(
           styles['Circle'],
           bubble.animation === 'spawning' && 'animate-spawn',
@@ -80,7 +80,7 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
             'pointer-events-none select-none',
             bubble.animation === 'spawning' && 'animate-spawn'
           )}
-          style={styleObj}
+          style={styleObject}
         >
           💣
         </text>

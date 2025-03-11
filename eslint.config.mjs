@@ -2,6 +2,8 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import js from '@eslint/js'
 import { FlatCompat } from '@eslint/eslintrc'
+import globals from 'globals'
+import eslintPluginUnicorn from 'eslint-plugin-unicorn'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -44,6 +46,22 @@ export default [
       ],
       '@typescript-eslint/strict-boolean-expressions': 'error',
       'prefer-const': 'error',
+    },
+  },
+  eslintPluginUnicorn.configs.all,
+  {
+    rules: {
+      'unicorn/no-null': 'off',
+      'unicorn/prevent-abbreviations': [
+        'error',
+        {
+          allowList: {
+            props: true,
+            Props: true,
+            ref: true,
+          },
+        },
+      ],
     },
   },
 ]

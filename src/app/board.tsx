@@ -4,13 +4,15 @@ import clsx from 'clsx'
 import { MouseEventHandler, ReactNode, memo, useCallback, useEffect } from 'react'
 import { match } from 'ts-pattern'
 import { useShallow } from 'zustand/react/shallow'
-import { BubbleCircle } from '../components/BubbleCircle'
+import { BubbleCircle } from '../components/bubble-circle'
 import { BOARD_HEIGHT, BOARD_WIDTH } from '../models/consts'
 import { useGameStore } from '../stores/game-store'
-import { BottomBar } from './BottomBar'
-import { CurrentScore } from './CurrentScore'
-import { HighScore } from './HighScore'
-import { SideButtons } from './SideButtons'
+import { BottomBar } from './bottom-bar'
+import { CurrentScore } from './current-score'
+import { HighScore } from './high-score'
+import { SideButtons } from './side-buttons'
+
+const noop = () => {}
 
 export const Board = memo(function Board() {
   const bubbles = useGameStore(useShallow((state) => state.bubbles))
@@ -40,6 +42,8 @@ export const Board = memo(function Board() {
       match(gameState)
         .returnType<undefined | (() => void)>()
         .with('running', 'paused', () => {
+          // TODO: Determine what to do here later.
+          // eslint-disable-next-line unicorn/consistent-function-scoping
           const handle = (event: KeyboardEvent) => {
             if (event.metaKey || event.ctrlKey) {
               return
@@ -54,12 +58,18 @@ export const Board = memo(function Board() {
               useGameStore.getState().addBubbleLine()
             }
           }
-          window.document.addEventListener('keydown', handle)
+          const abortController = new AbortController()
+          globalThis.document.addEventListener('keydown', handle, {
+            signal: abortController.signal,
+            passive: true,
+          })
           return () => {
-            window.document.removeEventListener('keydown', handle)
+            abortController.abort()
           }
         })
         .with('game-over', 'main-menu', () => {
+          // TODO: Determine what to do here later.
+          // eslint-disable-next-line unicorn/consistent-function-scoping
           const handle = (event: KeyboardEvent) => {
             if (event.metaKey || event.ctrlKey) {
               return
@@ -68,9 +78,13 @@ export const Board = memo(function Board() {
               useGameStore.getState().reset()
             }
           }
-          window.document.addEventListener('keydown', handle)
+          const abortController = new AbortController()
+          globalThis.document.addEventListener('keydown', handle, {
+            signal: abortController.signal,
+            passive: true,
+          })
           return () => {
-            window.document.removeEventListener('keydown', handle)
+            abortController.abort()
           }
         })
         .exhaustive(),
@@ -81,16 +95,22 @@ export const Board = memo(function Board() {
     () =>
       match(gameState)
         .returnType<undefined | (() => void)>()
-        .with('game-over', 'main-menu', 'paused', () => undefined)
+        .with('game-over', 'main-menu', 'paused', () => noop)
         .with('running', () => {
+          // TODO: Determine what to do here later.
+          // eslint-disable-next-line unicorn/consistent-function-scoping
           const handle = () => {
             if (document.hidden) {
               useGameStore.getState().togglePause()
             }
           }
-          window.document.addEventListener('visibilitychange', handle)
+          const abortController = new AbortController()
+          globalThis.document.addEventListener('visibilitychange', handle, {
+            signal: abortController.signal,
+            passive: true,
+          })
           return () => {
-            window.document.removeEventListener('visibilitychange', handle)
+            abortController.abort()
           }
         })
         .exhaustive(),

@@ -26,7 +26,7 @@ interface GameStore {
   togglePause: () => void
 }
 
-const INITIAL_TICK_RATE = 5_200
+const INITIAL_TICK_RATE = 5200
 
 export const useGameStore = create<GameStore>()(
   devtools(
@@ -42,25 +42,24 @@ export const useGameStore = create<GameStore>()(
           key: nanoid(),
           score: 0,
           startedAt: new Date().toISOString(),
-        },
+        } satisfies Game,
         oldGames: [],
 
         addBubbleLine() {
-          const newBubbles = [...new Array<unknown>(BOARD_WIDTH)].map<Bubble>((_, x) => {
+          const nextBubbles = Array.from<unknown>({ length: BOARD_WIDTH }).map<Bubble>((_, x) => {
             const colorIndex = Math.floor(Math.random() * colorSchema.options.length)
             const color = colorSchema.options[colorIndex]
             if (color == null) {
               throw new Error('Color is null, bug in the code!')
             }
-            const newBubble: Bubble = {
+            return bubbleSchema.parse({
               key: nanoid(),
               type: Math.random() <= 0.015 ? 'bomb' : 'normal',
               x,
               y: 0,
               color,
               animation: 'spawning',
-            }
-            return bubbleSchema.parse(newBubble)
+            } satisfies Bubble)
           })
           const now = Date.now()
           set((state) => {
@@ -70,27 +69,26 @@ export const useGameStore = create<GameStore>()(
               }
             }
             // TODO: Refine this later!
-            const newTickRate = Math.max(
-              1_500,
+            const nextTickRate = Math.max(
+              1500,
               INITIAL_TICK_RATE - Math.floor(state.currentGame.score * 3)
             )
             return {
               prevTickTime: now,
               nextTickTime: now + state.tickRate,
-              tickRate: newTickRate,
+              tickRate: nextTickRate,
               bubbles: [
-                ...newBubbles,
-                ...state.bubbles.map((oldBubble) => {
-                  const newBubble: Bubble = {
+                ...nextBubbles,
+                ...state.bubbles.map((oldBubble) =>
+                  bubbleSchema.parse({
                     key: oldBubble.key,
                     type: oldBubble.type,
                     x: oldBubble.x,
                     y: oldBubble.y + 1,
                     color: oldBubble.color,
                     animation: 'pushed-up',
-                  }
-                  return bubbleSchema.parse(newBubble)
-                }),
+                  } satisfies Bubble)
+                ),
               ],
             }
           })
@@ -106,14 +104,14 @@ export const useGameStore = create<GameStore>()(
             return match(clickedBubble)
               .returnType<GameStore | Partial<GameStore>>()
               .with({ type: 'bomb' }, (clickedBubble) => {
-                const newBubbles = state.bubbles
+                const nextBubbles = state.bubbles
                   // Remove the clicked bomb
                   .filter((b) => b.key !== clickedBubble.key)
                   // Remove all normal bubbles of the same color.
                   .filter((b) => !(b.color === clickedBubble.color && b.type === 'normal'))
                 const currentGame: Game = {
                   key: state.currentGame.key,
-                  score: state.currentGame.score + (state.bubbles.length - newBubbles.length),
+                  score: state.currentGame.score + (state.bubbles.length - nextBubbles.length),
                   startedAt: state.currentGame.startedAt,
                 }
                 changed = true
@@ -178,15 +176,14 @@ export const useGameStore = create<GameStore>()(
                   !sortedBubbles.some((b) => b.x === bubble.x && b.y === bubble.y - 1)
                 ) {
                   changed = true
-                  const newBubble: Bubble = {
+                  return bubbleSchema.parse({
                     key: bubble.key,
                     type: bubble.type,
                     x: bubble.x,
                     y: bubble.y - 1,
                     color: bubble.color,
                     animation: 'fall',
-                  }
-                  return bubbleSchema.parse(newBubble)
+                  } satisfies Bubble)
                 }
                 return bubble
               })
@@ -196,18 +193,17 @@ export const useGameStore = create<GameStore>()(
         },
         reset() {
           const now = new Date()
-          const newGame: Game = {
-            key: nanoid(),
-            score: 0,
-            startedAt: now.toISOString(),
-          }
           set((state) => ({
             prevTickTime: now.getTime(),
             nextTickTime: now.getTime() + INITIAL_TICK_RATE,
             tickRate: INITIAL_TICK_RATE,
             bubbles: [],
             gameState: 'running',
-            currentGame: gameSchema.parse(newGame),
+            currentGame: gameSchema.parse({
+              key: nanoid(),
+              score: 0,
+              startedAt: now.toISOString(),
+            } satisfies Game),
             oldGames: [state.currentGame, ...state.oldGames],
           }))
           get().addBubbleLine()
@@ -224,11 +220,11 @@ export const useGameStore = create<GameStore>()(
                 pausedTickDelta: tickDelta <= 0 || tickDelta > state.tickRate ? 0 : tickDelta,
               }
             } else if (state.gameState === 'paused') {
-              const newTickStart = Date.now() - (state.pausedTickDelta ?? 0)
+              const nextTickStart = Date.now() - (state.pausedTickDelta ?? 0)
               return {
                 gameState: 'running',
-                prevTickTime: newTickStart,
-                nextTickTime: newTickStart + state.tickRate,
+                prevTickTime: nextTickStart,
+                nextTickTime: nextTickStart + state.tickRate,
                 pausedTickDelta: 0,
               }
             } else {

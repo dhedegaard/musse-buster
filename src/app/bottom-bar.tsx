@@ -12,7 +12,7 @@ const keyframe: Keyframe[] = [
 export const BottomBar = memo(function BottomBar() {
   const ref = useRef<HTMLDivElement>(null)
 
-  const prevTickTime = useGameStore(useShallow((state) => state.prevTickTime))
+  const previousTickTime = useGameStore(useShallow((state) => state.prevTickTime))
   const nextTickTime = useGameStore(useShallow((state) => state.nextTickTime))
   const gameState = useGameStore(useShallow((state) => state.gameState))
   const pausedTickDelta = useGameStore(useShallow((state) => state.pausedTickDelta))
@@ -22,7 +22,7 @@ export const BottomBar = memo(function BottomBar() {
     if (div == null || (gameState !== 'running' && gameState !== 'paused')) {
       return
     }
-    const duration = nextTickTime - prevTickTime
+    const duration = nextTickTime - previousTickTime
     const animateHandle = div.animate(keyframe, { duration, easing: 'linear' })
     const percent = Math.min(
       1,
@@ -30,7 +30,10 @@ export const BottomBar = memo(function BottomBar() {
         0,
         match(gameState)
           .returnType<number>()
-          .with('running', () => (Date.now() - prevTickTime) / (nextTickTime - prevTickTime))
+          .with(
+            'running',
+            () => (Date.now() - previousTickTime) / (nextTickTime - previousTickTime)
+          )
           .with('paused', () => (pausedTickDelta ?? 0) / duration)
           .exhaustive()
       )
@@ -42,7 +45,7 @@ export const BottomBar = memo(function BottomBar() {
     return () => {
       animateHandle.cancel()
     }
-  }, [prevTickTime, nextTickTime, gameState, pausedTickDelta])
+  }, [previousTickTime, nextTickTime, gameState, pausedTickDelta])
 
   return (
     <button
