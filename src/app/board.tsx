@@ -42,47 +42,49 @@ export const Board = memo(function Board() {
       match(gameState)
         .returnType<undefined | (() => void)>()
         .with('running', 'paused', () => {
-          // TODO: Determine what to do here later.
-          // eslint-disable-next-line unicorn/consistent-function-scoping
-          const handle = (event: KeyboardEvent) => {
-            if (event.metaKey || event.ctrlKey) {
-              return
-            }
-            if (event.key === 'p' || event.key === ' ') {
-              useGameStore.getState().togglePause()
-            }
-            if (event.key === 'n') {
-              useGameStore.getState().reset()
-            }
-            if (event.key === 'ArrowUp') {
-              useGameStore.getState().addBubbleLine()
-            }
-          }
           const abortController = new AbortController()
-          globalThis.document.addEventListener('keydown', handle, {
-            signal: abortController.signal,
-            passive: true,
-          })
+          globalThis.document.addEventListener(
+            'keydown',
+            (event) => {
+              if (event.metaKey || event.ctrlKey) {
+                return
+              }
+              if (event.key === 'p' || event.key === ' ') {
+                useGameStore.getState().togglePause()
+              }
+              if (event.key === 'n') {
+                useGameStore.getState().reset()
+              }
+              if (event.key === 'ArrowUp') {
+                useGameStore.getState().addBubbleLine()
+              }
+            },
+            {
+              signal: abortController.signal,
+              passive: true,
+            }
+          )
           return () => {
             abortController.abort()
           }
         })
         .with('game-over', 'main-menu', () => {
-          // TODO: Determine what to do here later.
-          // eslint-disable-next-line unicorn/consistent-function-scoping
-          const handle = (event: KeyboardEvent) => {
-            if (event.metaKey || event.ctrlKey) {
-              return
-            }
-            if (event.key === 'n' || event.key === ' ') {
-              useGameStore.getState().reset()
-            }
-          }
           const abortController = new AbortController()
-          globalThis.document.addEventListener('keydown', handle, {
-            signal: abortController.signal,
-            passive: true,
-          })
+          globalThis.document.addEventListener(
+            'keydown',
+            (event) => {
+              if (event.metaKey || event.ctrlKey) {
+                return
+              }
+              if (event.key === 'n' || event.key === ' ') {
+                useGameStore.getState().reset()
+              }
+            },
+            {
+              signal: abortController.signal,
+              passive: true,
+            }
+          )
           return () => {
             abortController.abort()
           }
@@ -97,18 +99,19 @@ export const Board = memo(function Board() {
         .returnType<undefined | (() => void)>()
         .with('game-over', 'main-menu', 'paused', () => noop)
         .with('running', () => {
-          // TODO: Determine what to do here later.
-          // eslint-disable-next-line unicorn/consistent-function-scoping
-          const handle = () => {
-            if (document.hidden) {
-              useGameStore.getState().togglePause()
-            }
-          }
           const abortController = new AbortController()
-          globalThis.document.addEventListener('visibilitychange', handle, {
-            signal: abortController.signal,
-            passive: true,
-          })
+          globalThis.document.addEventListener(
+            'visibilitychange',
+            () => {
+              if (document.hidden) {
+                useGameStore.getState().togglePause()
+              }
+            },
+            {
+              signal: abortController.signal,
+              passive: true,
+            }
+          )
           return () => {
             abortController.abort()
           }
