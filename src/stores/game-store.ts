@@ -6,6 +6,7 @@ import { Bubble, bubbleSchema } from '../models/bubble'
 import { colorSchema } from '../models/color'
 import { BOARD_HEIGHT, BOARD_WIDTH } from '../models/consts'
 import { Game, gameSchema } from '../models/game'
+import { nanoid } from 'nanoid'
 
 interface GameStore {
   prevTickTime: number
@@ -38,7 +39,7 @@ export const useGameStore = create<GameStore>()(
         pausedTickDelta: undefined,
         gameState: 'main-menu' as const,
         currentGame: {
-          key: crypto.randomUUID(),
+          key: nanoid(),
           score: 0,
           startedAt: new Date().toISOString(),
         },
