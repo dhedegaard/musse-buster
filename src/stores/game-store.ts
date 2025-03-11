@@ -68,7 +68,6 @@ export const useGameStore = create<GameStore>()(
                 gameState: 'game-over',
               }
             }
-            // TODO: Refine this later!
             const nextTickRate = Math.max(
               1500,
               INITIAL_TICK_RATE - Math.floor(state.currentGame.score * 3)
