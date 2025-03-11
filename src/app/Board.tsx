@@ -100,11 +100,11 @@ export const Board = memo(function Board() {
   const handleClickGameOverlay = useCallback<MouseEventHandler<HTMLElement>>(() => {
     match(gameState)
       .returnType<unknown>()
-      .with('running', () => {})
+      .with('running', 'game-over', () => {})
       .with('paused', () => {
         useGameStore.getState().togglePause()
       })
-      .with('game-over', 'main-menu', () => {
+      .with('main-menu', () => {
         useGameStore.getState().reset()
       })
       .exhaustive()
@@ -164,7 +164,9 @@ export const Board = memo(function Board() {
             .with('game-over', () => (
               <>
                 <div className="text-3xl font-bold">GAME OVER!</div>
-                <div className="text-xl font-bold">Click here to start over</div>
+                <div className="text-xl font-bold">
+                  Click on the new game button (or press &apos;N&apos;), to start a new game
+                </div>
               </>
             ))
             .with('main-menu', () => (
