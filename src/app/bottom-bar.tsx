@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { memo, useCallback, useEffect, useRef } from 'react'
+import { memo, MouseEventHandler, useCallback, useEffect, useRef } from 'react'
 import { lime, sky } from 'tailwindcss/colors'
 import { match } from 'ts-pattern'
 import { useShallow } from 'zustand/react/shallow'
@@ -47,24 +47,32 @@ export const BottomBar = memo(function BottomBar() {
     }
   }, [previousTickTime, nextTickTime, gameState, pausedTickDelta])
 
+  const handleClick = useCallback<MouseEventHandler<HTMLElement>>(
+    (event) => {
+      event.preventDefault()
+      event.stopPropagation()
+      match(gameState)
+        .returnType<undefined>()
+        .with('running', () => {
+          useGameStore.getState().addBubbleLine()
+        })
+        .with('main-menu', 'game-over', () => {
+          useGameStore.getState().reset()
+        })
+        .with('paused', () => {
+          useGameStore.getState().togglePause()
+        })
+        .exhaustive()
+    },
+    [gameState]
+  )
+
   return (
     <button
       type="button"
       aria-label="add bubble line"
-      onClick={useCallback(() => {
-        match(gameState)
-          .returnType<undefined>()
-          .with('running', () => {
-            useGameStore.getState().addBubbleLine()
-          })
-          .with('main-menu', 'game-over', () => {
-            useGameStore.getState().reset()
-          })
-          .with('paused', () => {
-            useGameStore.getState().togglePause()
-          })
-          .exhaustive()
-      }, [gameState])}
+      onClick={handleClick}
+      onContextMenu={handleClick}
       tabIndex={gameState === 'running' ? undefined : -1}
       className={clsx(
         'relative box-border h-[6vh] w-full flex-none scale-100 transform-gpu cursor-pointer border-2 border-solid border-slate-700 transition-all active:scale-105',
