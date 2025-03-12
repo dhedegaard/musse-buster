@@ -1,5 +1,13 @@
 import clsx from 'clsx'
-import { CSSProperties, memo, useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  CSSProperties,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type MouseEventHandler,
+} from 'react'
 import { P, match } from 'ts-pattern'
 import { Bubble } from '../models/bubble'
 import { BOARD_HEIGHT } from '../models/consts'
@@ -36,6 +44,15 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
     [bubble.animation, lastFallDelta]
   )
 
+  const handleMouseDown = useCallback<MouseEventHandler<SVGRectElement>>(
+    (event) => {
+      event.preventDefault()
+      event.stopPropagation()
+      useGameStore.getState().clickBubble(bubble.key)
+    },
+    [bubble.key]
+  )
+
   return (
     <>
       <rect
@@ -44,9 +61,8 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
         width={1}
         height={1}
         className="cursor-pointer opacity-0"
-        onMouseDown={useCallback(() => {
-          useGameStore.getState().clickBubble(bubble.key)
-        }, [bubble.key])}
+        onMouseDown={handleMouseDown}
+        onContextMenu={handleMouseDown}
       />
 
       <circle
