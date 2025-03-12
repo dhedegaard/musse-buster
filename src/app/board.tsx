@@ -152,6 +152,9 @@ export const Board = memo(function Board() {
           viewBox={`0 0 ${BOARD_WIDTH.toString()} ${BOARD_HEIGHT.toString()}`}
           width="100%"
           className="max-h-screen max-w-full"
+          onContextMenu={useCallback<MouseEventHandler<SVGElement>>((event) => {
+            event.preventDefault()
+          }, [])}
         >
           <rect
             x={0}
