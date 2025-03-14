@@ -10,10 +10,10 @@ interface GameRow {
 }
 export const HighScore = memo(function HighScore() {
   const currentScore = useGameStore(useShallow((state) => state.currentGame.score))
-  const currentGameRow = useMemo(() => {
-    const row: GameRow = { score: currentScore, key: 'current', type: 'current' }
-    return row
-  }, [currentScore])
+  const currentGameRow = useMemo(
+    () => ({ score: currentScore, key: 'current', type: 'current' }) satisfies GameRow,
+    [currentScore]
+  )
 
   const oldGames = useGameStore(useShallow((state) => state.oldGames))
 
@@ -24,10 +24,9 @@ export const HighScore = memo(function HighScore() {
           .toSorted((a, b) => b.score - a.score)
           .slice(0, 8)
           .filter((game) => game.score > 0)
-          .map<GameRow>((game) => {
-            const row: GameRow = { score: game.score, key: game.key, type: 'old' }
-            return row
-          }),
+          .map<GameRow>(
+            (game) => ({ score: game.score, key: game.key, type: 'old' }) satisfies GameRow
+          ),
         currentGameRow,
       ].toSorted((a, b) => b.score - a.score),
     [currentGameRow, oldGames]

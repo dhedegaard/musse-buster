@@ -1,4 +1,5 @@
 import type {} from '@redux-devtools/extension'
+import { nanoid } from 'nanoid'
 import { match } from 'ts-pattern'
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
@@ -6,7 +7,6 @@ import { Bubble, bubbleSchema } from '../models/bubble'
 import { colorSchema } from '../models/color'
 import { BOARD_HEIGHT, BOARD_WIDTH } from '../models/consts'
 import { Game, gameSchema } from '../models/game'
-import { nanoid } from 'nanoid'
 
 interface GameStore {
   prevTickTime: number
@@ -108,11 +108,6 @@ export const useGameStore = create<GameStore>()(
                   .filter((b) => b.key !== clickedBubble.key)
                   // Remove all normal bubbles of the same color.
                   .filter((b) => !(b.color === clickedBubble.color && b.type === 'normal'))
-                const currentGame: Game = {
-                  key: state.currentGame.key,
-                  score: state.currentGame.score + (state.bubbles.length - nextBubbles.length),
-                  startedAt: state.currentGame.startedAt,
-                }
                 changed = true
                 return {
                   bubbles: state.bubbles
@@ -120,7 +115,11 @@ export const useGameStore = create<GameStore>()(
                     .filter((b) => b.key !== clickedBubble.key)
                     // Remove all normal bubbles of the same color.
                     .filter((b) => !(b.color === clickedBubble.color && b.type === 'normal')),
-                  currentGame: gameSchema.parse(currentGame),
+                  currentGame: gameSchema.parse({
+                    key: state.currentGame.key,
+                    score: state.currentGame.score + (state.bubbles.length - nextBubbles.length),
+                    startedAt: state.currentGame.startedAt,
+                  } satisfies Game),
                 }
               })
               .with({ type: 'normal' }, (clickedBubble) => {
@@ -146,14 +145,13 @@ export const useGameStore = create<GameStore>()(
                   return {}
                 }
                 changed = true
-                const updatedCurrentGame: Game = {
-                  key: state.currentGame.key,
-                  score: state.currentGame.score + seenKeys.size,
-                  startedAt: state.currentGame.startedAt,
-                }
                 return {
                   bubbles: state.bubbles.filter((b) => !seenKeys.has(b.key)),
-                  currentGame: gameSchema.parse(updatedCurrentGame),
+                  currentGame: gameSchema.parse({
+                    key: state.currentGame.key,
+                    score: state.currentGame.score + seenKeys.size,
+                    startedAt: state.currentGame.startedAt,
+                  } satisfies Game),
                 }
               })
               .exhaustive()
