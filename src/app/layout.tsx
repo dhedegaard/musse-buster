@@ -1,5 +1,5 @@
-import { Metadata, type Viewport } from 'next'
-import { ReactNode } from 'react'
+import type { Metadata, Viewport } from 'next'
+import type { ReactNode } from 'react'
 
 export const viewport: Viewport = {
   initialScale: 1,

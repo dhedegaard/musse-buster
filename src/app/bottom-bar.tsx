@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { memo, MouseEventHandler, useCallback, useEffect, useRef } from 'react'
+import { memo, type MouseEventHandler, useCallback, useEffect, useRef } from 'react'
 import { lime, sky } from 'tailwindcss/colors'
 import { match } from 'ts-pattern'
 import { useShallow } from 'zustand/react/shallow'

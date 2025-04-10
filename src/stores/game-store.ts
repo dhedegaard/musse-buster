@@ -3,10 +3,10 @@ import { nanoid } from 'nanoid'
 import { match } from 'ts-pattern'
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
-import { Bubble, bubbleSchema } from '../models/bubble'
+import { type Bubble, bubbleSchema } from '../models/bubble'
 import { colorSchema } from '../models/color'
 import { BOARD_HEIGHT, BOARD_WIDTH } from '../models/consts'
-import { Game, gameSchema } from '../models/game'
+import { type Game, gameSchema } from '../models/game'
 
 interface GameStore {
   prevTickTime: number

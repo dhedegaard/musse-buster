@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import {
-  CSSProperties,
+  type CSSProperties,
   memo,
   useCallback,
   useEffect,
@@ -9,7 +9,7 @@ import {
   type MouseEventHandler,
 } from 'react'
 import { P, match } from 'ts-pattern'
-import { Bubble } from '../models/bubble'
+import type { Bubble } from '../models/bubble'
 import { BOARD_HEIGHT } from '../models/consts'
 import { useGameStore } from '../stores/game-store'
 import styles from './bubble-circle.module.css'

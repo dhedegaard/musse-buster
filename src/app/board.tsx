@@ -1,7 +1,7 @@
 'use client'
 
 import clsx from 'clsx'
-import { MouseEventHandler, ReactNode, memo, useCallback, useEffect } from 'react'
+import { type MouseEventHandler, type ReactNode, memo, useCallback, useEffect } from 'react'
 import { match } from 'ts-pattern'
 import { useShallow } from 'zustand/react/shallow'
 import { BubbleCircle } from '../components/bubble-circle'
