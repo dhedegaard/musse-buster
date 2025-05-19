@@ -1,5 +1,7 @@
-import { z } from 'zod'
+import { z } from 'zod/v4-mini'
 
-export const colorSchema = z.enum(['red', 'yellow', 'blue', 'green'])
+export const colorOptions = ['red', 'yellow', 'blue', 'green'] as const
 
-export type Color = z.TypeOf<typeof colorSchema>
+export const Color = z.enum(colorOptions)
+
+export type Color = z.infer<typeof Color>

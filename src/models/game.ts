@@ -1,9 +1,9 @@
-import { z } from 'zod'
+import { z } from 'zod/v4-mini'
 
-export const gameSchema = z.object({
-  key: z.string().min(1),
-  score: z.number().int().nonnegative(),
-  startedAt: z.string().datetime({ offset: true }),
+export const Game = z.object({
+  key: z.string().check(z.minLength(1)),
+  score: z.int().check(z.nonnegative()),
+  startedAt: z.iso.datetime({ offset: true }),
 })
 
-export type Game = z.TypeOf<typeof gameSchema>
+export interface Game extends z.infer<typeof Game> {}

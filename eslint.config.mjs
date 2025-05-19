@@ -35,6 +35,7 @@ export default [
         },
       ],
       '@typescript-eslint/no-empty-interface': 'off',
+      '@typescript-eslint/no-empty-object-type': 'off',
       '@typescript-eslint/no-misused-promises': [
         'error',
         {

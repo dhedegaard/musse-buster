@@ -3,10 +3,10 @@ import { nanoid } from 'nanoid'
 import { match } from 'ts-pattern'
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
-import { type Bubble, bubbleSchema } from '../models/bubble'
-import { colorSchema } from '../models/color'
+import { Bubble } from '../models/bubble'
+import { colorOptions } from '../models/color'
 import { BOARD_HEIGHT, BOARD_WIDTH } from '../models/consts'
-import { type Game, gameSchema } from '../models/game'
+import { Game } from '../models/game'
 
 interface GameStore {
   prevTickTime: number
@@ -47,12 +47,12 @@ export const useGameStore = create<GameStore>()(
 
         addBubbleLine() {
           const nextBubbles = Array.from<unknown>({ length: BOARD_WIDTH }).map<Bubble>((_, x) => {
-            const colorIndex = Math.floor(Math.random() * colorSchema.options.length)
-            const color = colorSchema.options[colorIndex]
+            const colorIndex = Math.floor(Math.random() * colorOptions.length)
+            const color = colorOptions[colorIndex]
             if (color == null) {
               throw new Error('Color is null, bug in the code!')
             }
-            return bubbleSchema.parse({
+            return Bubble.parse({
               key: nanoid(),
               type: Math.random() <= 0.015 ? 'bomb' : 'normal',
               x,
@@ -79,7 +79,7 @@ export const useGameStore = create<GameStore>()(
               bubbles: [
                 ...nextBubbles,
                 ...state.bubbles.map((oldBubble) =>
-                  bubbleSchema.parse({
+                  Bubble.parse({
                     key: oldBubble.key,
                     type: oldBubble.type,
                     x: oldBubble.x,
@@ -115,7 +115,7 @@ export const useGameStore = create<GameStore>()(
                     .filter((b) => b.key !== clickedBubble.key)
                     // Remove all normal bubbles of the same color.
                     .filter((b) => !(b.color === clickedBubble.color && b.type === 'normal')),
-                  currentGame: gameSchema.parse({
+                  currentGame: Game.parse({
                     key: state.currentGame.key,
                     score: state.currentGame.score + (state.bubbles.length - nextBubbles.length),
                     startedAt: state.currentGame.startedAt,
@@ -147,7 +147,7 @@ export const useGameStore = create<GameStore>()(
                 changed = true
                 return {
                   bubbles: state.bubbles.filter((b) => !seenKeys.has(b.key)),
-                  currentGame: gameSchema.parse({
+                  currentGame: Game.parse({
                     key: state.currentGame.key,
                     score: state.currentGame.score + seenKeys.size,
                     startedAt: state.currentGame.startedAt,
@@ -173,7 +173,7 @@ export const useGameStore = create<GameStore>()(
                   !sortedBubbles.some((b) => b.x === bubble.x && b.y === bubble.y - 1)
                 ) {
                   changed = true
-                  return bubbleSchema.parse({
+                  return Bubble.parse({
                     key: bubble.key,
                     type: bubble.type,
                     x: bubble.x,
@@ -196,7 +196,7 @@ export const useGameStore = create<GameStore>()(
             tickRate: INITIAL_TICK_RATE,
             bubbles: [],
             gameState: 'running',
-            currentGame: gameSchema.parse({
+            currentGame: Game.parse({
               key: nanoid(),
               score: 0,
               startedAt: now.toISOString(),

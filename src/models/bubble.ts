@@ -1,28 +1,17 @@
-import { z } from 'zod'
-import { colorSchema } from './color'
+import { z } from 'zod/v4-mini'
+import { Color } from './color'
 import { BOARD_HEIGHT, BOARD_WIDTH } from './consts'
 
-const bubbleTypeSchema = z.enum(['normal', 'bomb'])
-export type BubbleType = z.TypeOf<typeof bubbleTypeSchema>
+const BubbleType = z.enum(['normal', 'bomb'])
+export type BubbleType = z.infer<typeof BubbleType>
 
-export const bubbleSchema = z.object({
-  key: z.string().min(1),
+export const Bubble = z.object({
+  key: z.string().check(z.minLength(1)),
   // NOTE: Later, we may remove the optionality here, but for now we want to translate missing values.
-  type: z
-    .optional(bubbleTypeSchema)
-    .transform((value) => value ?? 'normal')
-    .pipe(bubbleTypeSchema),
-  x: z
-    .number()
-    .int()
-    .min(0)
-    .max(BOARD_WIDTH - 1),
-  y: z
-    .number()
-    .int()
-    .min(0)
-    .max(BOARD_HEIGHT - 1),
-  color: colorSchema,
+  type: z.prefault(z.optional(BubbleType), 'normal'),
+  x: z.int().check(z.nonnegative(), z.maximum(BOARD_WIDTH - 1)),
+  y: z.int().check(z.nonnegative(), z.maximum(BOARD_HEIGHT - 1)),
+  color: Color,
   animation: z.enum(['spawning', 'pushed-up', 'fall']),
 })
-export type Bubble = z.TypeOf<typeof bubbleSchema>
+export interface Bubble extends z.infer<typeof Bubble> {}
