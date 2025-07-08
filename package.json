@@ -15,7 +15,7 @@
   "dependencies": {
     "clsx": "^2.1.1",
     "nanoid": "^5.1.5",
-    "next": "15.3.2",
+    "next": "15.3.5",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "ts-pattern": "^5.7.1",
@@ -29,13 +29,13 @@
     "@tsconfig/next": "^2.0.3",
     "@tsconfig/strictest": "^2.0.5",
     "@types/node": "22.15.19",
-    "@types/react": "19.1.4",
-    "@types/react-dom": "19.1.5",
+    "@types/react": "19.1.8",
+    "@types/react-dom": "19.1.6",
     "@typescript-eslint/eslint-plugin": "^8.32.1",
     "autoprefixer": "^10.4.21",
     "daisyui": "^4.12.24",
     "eslint": "9.27.0",
-    "eslint-config-next": "15.3.2",
+    "eslint-config-next": "15.3.5",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-prettier": "^5.4.0",
     "eslint-plugin-tailwindcss": "^3.18.0",
@@ -47,7 +47,7 @@
     "typescript": "^5.8.3"
   },
   "overrides": {
-    "@types/react": "19.1.4",
-    "@types/react-dom": "19.1.5"
+    "@types/react": "19.1.8",
+    "@types/react-dom": "19.1.6"
   }
 }
