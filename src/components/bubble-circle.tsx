@@ -19,7 +19,7 @@ interface Props {
   bubble: Bubble
 }
 
-const circleCva = cva(styles['Circle'], {
+const circleVariants = cva(styles['Circle'], {
   variants: {
     color: {
       red: 'fill-rose-600',
@@ -41,7 +41,7 @@ const circleCva = cva(styles['Circle'], {
     type: 'normal',
   },
 } as const)
-interface CircleCva extends Required<VariantProps<typeof circleCva>> {}
+interface CircleVariants extends Required<VariantProps<typeof circleVariants>> {}
 
 export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
   const currentY = useMemo(() => BOARD_HEIGHT - bubble.y - 1, [bubble.y])
@@ -102,14 +102,14 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
         r={0.5 - 0.03}
         strokeWidth={0.025}
         style={styleObject}
-        className={circleCva(
+        className={circleVariants(
           useMemo(
             () =>
               ({
                 color: bubble.color,
                 type: bubble.type,
                 animation: bubble.animation,
-              }) satisfies CircleCva,
+              }) satisfies CircleVariants,
             [bubble.animation, bubble.color, bubble.type]
           )
         )}
