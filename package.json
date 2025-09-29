@@ -7,7 +7,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "concurrently --ks -n \"biome,lint\" \"biome ci\" \"next lint\""
   },
   "keywords": [],
   "author": "",
@@ -23,6 +23,7 @@
     "zustand": "^5.0.8"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.2.4",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.36.0",
     "@redux-devtools/extension": "^3.3.0",
@@ -33,6 +34,7 @@
     "@types/react-dom": "19.1.9",
     "@typescript-eslint/eslint-plugin": "^8.44.1",
     "autoprefixer": "^10.4.21",
+    "concurrently": "^9.2.1",
     "daisyui": "^4.12.24",
     "eslint": "9.36.0",
     "eslint-config-next": "15.5.4",
