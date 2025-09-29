@@ -1,11 +1,12 @@
+import { cva, type VariantProps } from 'class-variance-authority'
 import clsx from 'clsx'
 import {
-  type CSSProperties,
   memo,
   useCallback,
   useEffect,
   useMemo,
   useState,
+  type CSSProperties,
   type MouseEventHandler,
 } from 'react'
 import { P, match } from 'ts-pattern'
@@ -17,6 +18,30 @@ import styles from './bubble-circle.module.css'
 interface Props {
   bubble: Bubble
 }
+
+const circleCva = cva(styles['Circle'], {
+  variants: {
+    color: {
+      red: 'fill-rose-600',
+      blue: 'fill-sky-700',
+      green: 'fill-lime-500',
+      yellow: 'fill-amber-400',
+    },
+    type: {
+      normal: 'stroke-transparent',
+      bomb: 'stroke-black',
+    },
+    animation: {
+      spawning: 'animate-spawn',
+      'pushed-up': null,
+      fall: null,
+    },
+  },
+  defaultVariants: {
+    type: 'normal',
+  },
+} as const)
+interface CircleCva extends Required<VariantProps<typeof circleCva>> {}
 
 export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
   const currentY = useMemo(() => BOARD_HEIGHT - bubble.y - 1, [bubble.y])
@@ -77,16 +102,11 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
         r={0.5 - 0.03}
         strokeWidth={0.025}
         style={styleObject}
-        className={clsx(
-          styles['Circle'],
-          bubble.animation === 'spawning' && 'animate-spawn',
-          bubble.color === 'red' && 'fill-rose-600',
-          bubble.color === 'blue' && 'fill-sky-700',
-          bubble.color === 'green' && 'fill-lime-500',
-          bubble.color === 'yellow' && 'fill-amber-400',
-          bubble.type === 'normal' && 'stroke-transparent',
-          bubble.type === 'bomb' && 'stroke-black'
-        )}
+        className={circleCva({
+          color: bubble.color,
+          type: bubble.type,
+          animation: bubble.animation,
+        } satisfies CircleCva)}
       />
       {bubble.type === 'bomb' && (
         <text
