@@ -149,6 +149,8 @@ export const Board = memo(function Board() {
         )}
       >
         <svg
+          role="graphics-symbol"
+          aria-label="Game board"
           viewBox={`0 0 ${BOARD_WIDTH.toString()} ${BOARD_HEIGHT.toString()}`}
           width="100%"
           className="max-h-screen max-w-full"
