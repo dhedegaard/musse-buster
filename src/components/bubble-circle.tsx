@@ -55,6 +55,7 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
 
   return (
     <>
+      {/** biome-ignore lint/a11y/useSemanticElements: A <rect> inside an <svg> element */}
       <rect
         x={bubble.x}
         y={currentY}
@@ -63,6 +64,9 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
         className="cursor-pointer opacity-0"
         onMouseDown={handleMouseDown}
         onContextMenu={handleMouseDown}
+        role="button"
+        tabIndex={0}
+        aria-label="Bubble"
       />
 
       <circle
