@@ -1,6 +1,5 @@
 import { FlatCompat } from '@eslint/eslintrc'
 import js from '@eslint/js'
-import eslintPluginUnicorn from 'eslint-plugin-unicorn'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -46,22 +45,6 @@ export default [
       ],
       '@typescript-eslint/strict-boolean-expressions': 'error',
       'prefer-const': 'error',
-    },
-  },
-  eslintPluginUnicorn.configs.all,
-  {
-    rules: {
-      'unicorn/no-null': 'off',
-      'unicorn/prevent-abbreviations': [
-        'error',
-        {
-          allowList: {
-            props: true,
-            Props: true,
-            ref: true,
-          },
-        },
-      ],
     },
   },
 ]
