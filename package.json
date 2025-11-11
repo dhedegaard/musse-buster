@@ -15,7 +15,7 @@
     "lint": "biome ci"
   },
   "keywords": [],
-  "author": "",
+  "author": "Dennis Hedegaard <dennis@dhedegaard.dk>",
   "license": "ISC",
   "dependencies": {
     "class-variance-authority": "^0.7.1",
