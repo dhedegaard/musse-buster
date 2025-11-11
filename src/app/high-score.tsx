@@ -22,7 +22,7 @@ export const HighScore = memo(function HighScore() {
       [
         ...oldGames
           .toSorted((a, b) => b.score - a.score)
-          .slice(0, 8)
+          .slice(0, 14)
           .filter((game) => game.score > 0)
           .map<GameRow>(
             (game) => ({ score: game.score, key: game.key, type: 'old' }) satisfies GameRow
