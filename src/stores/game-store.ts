@@ -1,4 +1,3 @@
-import type {} from '@redux-devtools/extension'
 import { nanoid } from 'nanoid'
 import { match } from 'ts-pattern'
 import { create } from 'zustand'
