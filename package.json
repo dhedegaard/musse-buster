@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "description": "Musse buster",
   "type": "module",
+  "engines": {
+    "node": ">=22",
+    "npm": ">=9"
+  },
+  "engineStrict": true,
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
