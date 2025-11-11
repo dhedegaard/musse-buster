@@ -14,9 +14,9 @@ interface GameStore {
   pausedTickDelta?: number | undefined
   gameState: 'main-menu' | 'running' | 'game-over' | 'paused'
   currentGame: Game
-  oldGames: Game[]
+  oldGames: readonly Game[]
 
-  bubbles: Bubble[]
+  bubbles: readonly Bubble[]
 
   addBubbleLine: () => void
   clickBubble: (key: string) => void
