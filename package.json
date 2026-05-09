@@ -4,8 +4,8 @@
   "description": "Musse buster",
   "type": "module",
   "engines": {
-    "node": ">=22",
-    "npm": ">=11"
+    "node": "24",
+    "npm": "11"
   },
   "engineStrict": true,
   "scripts": {
