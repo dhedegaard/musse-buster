@@ -20,28 +20,28 @@
   "dependencies": {
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "nanoid": "^5.1.6",
+    "nanoid": "^5.1.11",
     "next": "16.2.6",
     "react": "19.2.6",
     "react-dom": "19.2.6",
     "ts-pattern": "^5.9.0",
-    "zod": "^4.3.6",
-    "zustand": "^5.0.11"
+    "zod": "^4.4.3",
+    "zustand": "^5.0.13"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.4",
-    "@tsconfig/next": "^2.0.5",
+    "@biomejs/biome": "2.4.14",
+    "@tsconfig/next": "^2.0.6",
     "@tsconfig/strictest": "^2.0.8",
-    "@types/node": "25.3.0",
+    "@types/node": "25.6.2",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
-    "autoprefixer": "^10.4.24",
+    "autoprefixer": "^10.5.0",
     "daisyui": "^4.12.24",
-    "postcss": "^8.5.6",
-    "prettier": "^3.8.1",
+    "postcss": "^8.5.14",
+    "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "tailwindcss": "^3.4.16",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   },
   "overrides": {
     "@types/react": "19.2.14",
