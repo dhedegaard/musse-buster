@@ -1,3 +1,20 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@plugin "daisyui" {
+  themes: light --default;
+  logs: false;
+}
+
+@theme {
+  --animate-spawn: spawn 0.2s ease 1;
+
+  @keyframes spawn {
+    0% {
+      transform: scale(0);
+    }
+
+    100% {
+      transform: scale(1);
+    }
+  }
+}

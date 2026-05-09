@@ -1,3 +1,5 @@
+@reference "../globals/styles.css";
+
 .Circle {
   transform-box: fill-box;
   transition-duration: 0s;

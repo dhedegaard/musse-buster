@@ -1,13 +1,13 @@
 import clsx from 'clsx'
 import { memo, type MouseEventHandler, useCallback, useEffect, useRef } from 'react'
-import { lime, sky } from 'tailwindcss/colors'
+import colors from 'tailwindcss/colors'
 import { match } from 'ts-pattern'
 import { useShallow } from 'zustand/react/shallow'
 import { useGameStore } from '../stores/game-store'
 
 const keyframe: Keyframe[] = [
-  { width: '0%', backgroundColor: lime[400] },
-  { width: '100%', backgroundColor: sky[500] },
+  { width: '0%', backgroundColor: colors.lime[400] },
+  { width: '100%', backgroundColor: colors.sky[500] },
 ]
 export const BottomBar = memo(function BottomBar() {
   const ref = useRef<HTMLDivElement>(null)
