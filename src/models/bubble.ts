@@ -1,4 +1,4 @@
-import { z } from 'zod/v4-mini'
+import { z } from 'zod/mini'
 import { Color } from './color'
 import { BOARD_HEIGHT, BOARD_WIDTH } from './consts'
 
