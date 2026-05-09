@@ -1,4 +1,4 @@
-import { z } from 'zod/mini'
+import * as z from 'zod/mini'
 
 export const colorOptions = ['red', 'yellow', 'blue', 'green'] as const
 
