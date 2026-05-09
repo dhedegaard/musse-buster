@@ -80,7 +80,6 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
 
   return (
     <>
-      {/** biome-ignore lint/a11y/useSemanticElements: A <rect> inside an <svg> element */}
       <rect
         x={bubble.x}
         y={currentY}

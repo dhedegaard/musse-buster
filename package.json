@@ -12,7 +12,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "biome ci"
+    "lint": "eslint ."
   },
   "keywords": [],
   "author": "Dennis Hedegaard <dennis@dhedegaard.dk>",
@@ -29,19 +29,23 @@
     "zustand": "^5.0.13"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.14",
+    "@eslint/js": "^9.39.4",
+    "@tailwindcss/postcss": "^4.3.0",
     "@tsconfig/next": "^2.0.6",
     "@tsconfig/strictest": "^2.0.8",
     "@types/node": "25.6.2",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
-    "@tailwindcss/postcss": "^4.3.0",
     "daisyui": "^5.5.19",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "16.2.6",
+    "eslint-config-prettier": "^10.1.8",
     "postcss": "^8.5.14",
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.8.0",
     "tailwindcss": "^4.3.0",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.2"
   },
   "overrides": {
     "@types/react": "19.2.14",

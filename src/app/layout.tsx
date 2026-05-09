@@ -1,5 +1,3 @@
-/** biome-ignore-all lint/style/useComponentExportOnlyModules: viewport and metadata */
-
 import type { Metadata, Viewport } from 'next'
 import type { ReactNode } from 'react'
 

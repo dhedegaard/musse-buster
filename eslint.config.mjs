@@ -1,0 +1,30 @@
+import nextVitals from 'eslint-config-next/core-web-vitals'
+import nextTs from 'eslint-config-next/typescript'
+import prettier from 'eslint-config-prettier/flat'
+import { defineConfig, globalIgnores } from 'eslint/config'
+import tseslint from 'typescript-eslint'
+
+export default defineConfig([
+  ...nextVitals,
+  ...nextTs,
+  tseslint.configs.strictTypeChecked,
+  prettier,
+  {
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-empty-object-type': 'off',
+    },
+  },
+  globalIgnores([
+    '.next/**',
+    'out/**',
+    'build/**',
+    'next-env.d.ts',
+    'node_modules/**',
+    '*.tsbuildinfo',
+  ]),
+])

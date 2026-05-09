@@ -1,6 +1,6 @@
 {
   "extends": ["@tsconfig/strictest/tsconfig", "@tsconfig/next/tsconfig.json"],
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "*.mjs"],
   "exclude": ["node_modules"],
   "compilerOptions": {
     "plugins": [{ "name": "next" }],
