@@ -5,6 +5,6 @@ export default {
   output: 'export',
   typedRoutes: true,
   experimental: {
-    optimizePackageImports: ['zod'],
+    optimizePackageImports: ['zod', 'zod/mini'],
   },
 } satisfies NextConfig
