@@ -55,6 +55,43 @@ const handleVisibilityChange = () => {
   }
 }
 
+interface OverlayContentProps {
+  gameState: 'paused' | 'game-over' | 'main-menu'
+}
+function OverlayContent({ gameState }: OverlayContentProps) {
+  switch (gameState) {
+    case 'paused': {
+      return (
+        <>
+          <div className="text-3xl font-bold">Paused!</div>
+          <div className="text-xl font-bold">Click here, or press &apos;P&apos;, to continue</div>
+        </>
+      )
+    }
+    case 'game-over': {
+      return (
+        <>
+          <div className="text-3xl font-bold">GAME OVER!</div>
+          <div className="text-xl font-bold">
+            Click on the new game button (or press &apos;N&apos;), to start a new game
+          </div>
+        </>
+      )
+    }
+    case 'main-menu': {
+      return (
+        <>
+          <div className="text-3xl font-bold">MUSSE BUSTER!</div>
+          <div className="text-xl font-bold">Click here to start a game</div>
+        </>
+      )
+    }
+    default: {
+      assertNever(gameState)
+    }
+  }
+}
+
 const handleClickGameOverlay: MouseEventHandler<HTMLElement> = () => {
   const { gameState } = useGameStore.getState()
   switch (gameState) {
@@ -167,41 +204,7 @@ export const Board = memo(function Board() {
           className="absolute inset-0 flex cursor-pointer flex-col items-center justify-center gap-4 bg-white/70 select-none"
           onClick={handleClickGameOverlay}
         >
-          {(() => {
-            switch (gameState) {
-              case 'paused': {
-                return (
-                  <>
-                    <div className="text-3xl font-bold">Paused!</div>
-                    <div className="text-xl font-bold">
-                      Click here, or press &apos;P&apos;, to continue
-                    </div>
-                  </>
-                )
-              }
-              case 'game-over': {
-                return (
-                  <>
-                    <div className="text-3xl font-bold">GAME OVER!</div>
-                    <div className="text-xl font-bold">
-                      Click on the new game button (or press &apos;N&apos;), to start a new game
-                    </div>
-                  </>
-                )
-              }
-              case 'main-menu': {
-                return (
-                  <>
-                    <div className="text-3xl font-bold">MUSSE BUSTER!</div>
-                    <div className="text-xl font-bold">Click here to start a game</div>
-                  </>
-                )
-              }
-              default: {
-                assertNever(gameState)
-              }
-            }
-          })()}
+          <OverlayContent gameState={gameState} />
         </button>
       )}
 
