@@ -33,7 +33,6 @@ interface GameStore {
   togglePause: () => void
 }
 
-
 export const useGameStore = create<GameStore>()(
   devtools(
     persist<GameStore>(
