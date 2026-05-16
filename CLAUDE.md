@@ -20,7 +20,7 @@ No test suite exists. Verify changes via `npm run lint` and `npm run build`.
 
 ### Game Logic (`src/game-logic.ts`)
 Pure, deterministic functions with no side effects — the store delegates all computation here:
-- `findFloodFillGroup(bubbles, key)` — BFS flood-fill; returns `Set<string>` of keys (empty if < 3 connected same-color normal bubbles)
+- `findFloodFillGroup(bubbles, key)` — DFS flood-fill (stack-based); returns `Set<string>` of keys (empty if < 3 connected same-color normal bubbles)
 - `applyBombClick(bubbles, bomb)` — removes the bomb + all normal bubbles of the same color
 - `applyGravity(bubbles)` — iteratively drops bubbles into empty spaces below; returns new array
 - `calcTickRate(score)` — tick rate starts at 5200ms, decreases by 3ms per point, floor 1500ms
@@ -43,11 +43,13 @@ Zod schemas (imported from `zod/mini`) define both schema and TypeScript interfa
 - `board.tsx` — client component, `requestAnimationFrame` game loop, auto-pauses on tab hide, renders SVG grid
   - In `running`/`paused`: `p`/space=togglePause, `n`=reset, `↑`=debug add line
   - In `game-over`/`main-menu`: `n`/space=reset
+- `bottom-bar.tsx` — tick-progress bar driven by `useGameStore.subscribe()` + Web Animations API directly, bypassing React's render cycle entirely; no re-renders on tick updates
+- `bubble-circle.tsx` — uses a `deferredY` / `useEffect` one-frame delay so the SVG `<circle>` transitions from the old position to the new one (enabling CSS `transition` for `'fall'` animation); `calcTransitionDuration` scales by number of rows fallen; uses `cva` (class-variance-authority) for color/type variants
 - All component selectors combine multiple fields into a single `useGameStore(useShallow((state) => ({ ... })))` call — never multiple separate `useGameStore` calls per component
 
 ### Patterns
 - **Exhaustive switches**: Use `switch` with `default: assertNever(value)` for all union type branching (game state, bubble type). `assertNever` (from `src/utils.ts`) accepts `never` and throws a `TypeError` — this enforces exhaustive handling at compile time and runtime.
 - **Strict TypeScript**: Config extends `@tsconfig/strictest`. Strict boolean expressions enforced — conditionals must be explicit booleans.
 - **Zod imports**: Use `import * as z from 'zod/mini'` (wildcard import for correct tree-shaking).
-- **Module-level constants**: Hoist stable event handlers and static values to module scope rather than using `useCallback(fn, [])` inside components. See `noop` and `preventContextMenu` in `board.tsx`.
+- **Module-level constants**: Hoist stable event handlers and static values to module scope rather than using `useCallback(fn, [])` inside components. See `preventContextMenu`, `handleKeyDown`, `handleVisibilityChange` in `board.tsx`.
 - **Formatting**: Prettier with `prettier-plugin-tailwindcss`. 100-char line width, 2-space indent, `trailingComma: "es5"`, single quotes.
