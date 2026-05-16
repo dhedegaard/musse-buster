@@ -12,7 +12,6 @@ import { CurrentScore } from './current-score'
 import { HighScore } from './high-score'
 import { SideButtons } from './side-buttons'
 
-const noop = () => {}
 const preventContextMenu: MouseEventHandler<SVGElement> = (event) => {
   event.preventDefault()
 }
@@ -45,16 +44,16 @@ export const Board = memo(function Board() {
   }, [gameState, nextTickTime])
 
   useEffect(() => {
-    switch (gameState) {
-      case 'running':
-      case 'paused': {
-        const abortController = new AbortController()
-        globalThis.document.addEventListener(
-          'keydown',
-          (event) => {
-            if (event.metaKey || event.ctrlKey) {
-              return
-            }
+    const abortController = new AbortController()
+    globalThis.document.addEventListener(
+      'keydown',
+      (event) => {
+        if (event.metaKey || event.ctrlKey) {
+          return
+        }
+        switch (gameState) {
+          case 'running':
+          case 'paused': {
             if (event.key === 'p' || event.key === ' ') {
               useGameStore.getState().togglePause()
             }
@@ -64,41 +63,27 @@ export const Board = memo(function Board() {
             if (event.key === 'ArrowUp') {
               useGameStore.getState().addBubbleLine()
             }
-          },
-          {
-            signal: abortController.signal,
-            passive: true,
+            break
           }
-        )
-        return () => {
-          abortController.abort()
-        }
-      }
-      case 'game-over':
-      case 'main-menu': {
-        const abortController = new AbortController()
-        globalThis.document.addEventListener(
-          'keydown',
-          (event) => {
-            if (event.metaKey || event.ctrlKey) {
-              return
-            }
+          case 'game-over':
+          case 'main-menu': {
             if (event.key === 'n' || event.key === ' ') {
               useGameStore.getState().reset()
             }
-          },
-          {
-            signal: abortController.signal,
-            passive: true,
+            break
           }
-        )
-        return () => {
-          abortController.abort()
+          default: {
+            assertNever(gameState)
+          }
         }
+      },
+      {
+        signal: abortController.signal,
+        passive: true,
       }
-      default: {
-        assertNever(gameState)
-      }
+    )
+    return () => {
+      abortController.abort()
     }
   }, [gameState])
 
@@ -107,7 +92,7 @@ export const Board = memo(function Board() {
       case 'game-over':
       case 'main-menu':
       case 'paused': {
-        return noop
+        return
       }
       case 'running': {
         const abortController = new AbortController()
