@@ -18,20 +18,26 @@ No test suite exists. Verify changes via `npm run lint` and `npm run build`.
 
 **Musse Buster** is a browser-based bubble-buster game (Next.js 16 App Router, React 19, static export via `output: 'export'`).
 
+### Game Logic (`src/game-logic.ts`)
+Pure, deterministic functions with no side effects — the store delegates all computation here:
+- `findFloodFillGroup(bubbles, key)` — BFS flood-fill; returns `Set<string>` of keys (empty if < 3 connected same-color normal bubbles)
+- `applyBombClick(bubbles, bomb)` — removes the bomb + all normal bubbles of the same color
+- `applyGravity(bubbles)` — iteratively drops bubbles into empty spaces below; returns new array
+- `calcTickRate(score)` — tick rate starts at 5200ms, decreases by 3ms per point, floor 1500ms
+- `isGameOver(bubbles)` — true if any bubble's `y + 1 >= BOARD_HEIGHT`
+
 ### State (`src/stores/game-store.ts`)
-Single Zustand store (`useGameStore`) with `devtools` + `persist` middleware (localStorage key: `musse-buster-v0`). All game logic lives here as store actions. State machine: `'main-menu' | 'running' | 'paused' | 'game-over'`.
+Single Zustand store (`useGameStore`) with `devtools` + `persist` middleware (localStorage key: `musse-buster-v0`). Store actions orchestrate state mutations and delegate computation to `game-logic.ts`. State machine: `'main-menu' | 'running' | 'paused' | 'game-over'`.
 
 Key actions:
 - `addBubbleLine()` — spawns a row at y=0, pushes existing bubbles up, checks game-over, adjusts tick rate
-- `clickBubble(key)` — flood-fill removal for normal bubbles (≥3 required), or bomb removes itself + all same-color normal bubbles
-- `applyGravity()` — iteratively drops bubbles into empty spaces below; must be called manually after any removal (not automatic)
+- `clickBubble(key)` — flood-fill removal for normal bubbles (≥3 required), or bomb removes itself + all same-color normal bubbles; calls `applyGravity()` if any bubble was removed
+- `applyGravity()` — must be called manually after any removal (not automatic)
 - `reset()` — new game, archives old game to `oldGames`, spawns 4 initial lines
 - `togglePause()` — preserves elapsed tick delta so resuming continues mid-interval
 
-Difficulty: tick rate starts at 5200ms, decreases by 3ms per point scored, floor 1500ms.
-
 ### Models (`src/models/`)
-Zod schemas (imported from `zod/mini`) define both schema and TypeScript interface via `interface Foo extends z.infer<typeof Foo> {}`. Always use `.parse()` to construct objects — Zod applies defaults (e.g., `type: 'normal'` is `z.prefault`). Board is 10×14 (`BOARD_WIDTH` × `BOARD_HEIGHT`); y=0 is the bottom row — `BubbleCircle` flips to SVG space via `BOARD_HEIGHT - y - 1`.
+Zod schemas (imported from `zod/mini`) define both schema and TypeScript interface via `interface Foo extends z.infer<typeof Foo> {}`. Always use `.parse()` to construct objects — Zod applies defaults (e.g., `type: 'normal'` is `z.prefault`). Board is 10×14 (`BOARD_WIDTH` × `BOARD_HEIGHT`); y=0 is the bottom row — `BubbleCircle` flips to SVG space via `BOARD_HEIGHT - y - 1`. The `Bubble.animation` field drives CSS animations and must be set explicitly: `'spawning'` (new row), `'pushed-up'` (existing bubble shifted up), `'fall'` (gravity drop).
 
 ### UI (`src/app/`, `src/components/`)
 - `board.tsx` — client component, `requestAnimationFrame` game loop, auto-pauses on tab hide, renders SVG grid
