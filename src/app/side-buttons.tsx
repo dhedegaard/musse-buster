@@ -1,7 +1,6 @@
 'use client'
 
 import { memo } from 'react'
-import { useShallow } from 'zustand/react/shallow'
 import { useGameStore } from '../stores/game-store'
 
 const handleClickReset = () => {
@@ -13,7 +12,7 @@ const handleClickTogglePause = () => {
 }
 
 export const SideButtons = memo(function SideButtons() {
-  const gameState = useGameStore(useShallow((state) => state.gameState))
+  const gameState = useGameStore((state) => state.gameState)
 
   if (gameState === 'main-menu') {
     return null
