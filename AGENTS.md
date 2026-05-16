@@ -48,7 +48,6 @@ are periodically pushed onto the board.
 - Validation: `zod`
 - Pattern matching: `ts-pattern`
 - Styling: `tailwindcss`, `daisyui`, `class-variance-authority`, `clsx`
-- Utilities: `nanoid`
 
 ### Build and run
 

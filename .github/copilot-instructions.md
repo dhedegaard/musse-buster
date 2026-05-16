@@ -19,7 +19,7 @@
 All models in `src/models/` use **Zod validators** with interfaces extending inferred types:
 
 - **`bubble.ts`**: Grid-positioned bubbles with type (`'normal'` | `'bomb'`), color, animation state
-- **`game.ts`**: Game score records with nanoid keys and ISO datetime
+- **`game.ts`**: Game score records with UUID keys and ISO datetime
 - **`color.ts`**: Enum of 4 colors (`red`, `yellow`, `blue`, `green`)
 - **`consts.ts`**: Board dimensions (10x14 grid) as frozen constants
 - Pattern: Use `Bubble.parse()` / `Game.parse()` to validate when creating/updating objects
@@ -106,7 +106,7 @@ npm run start       # Serve production build
 - **Zod (v4-mini)**: Lightweight validation; used for all data models
 - **ts-pattern**: Pattern matching for exhaustive type checking
 - **Tailwind CSS + DaisyUI**: Utility classes for responsive layout
-- **nanoid**: Unique bubble and game keys (no UUID needed for simple games)
+- **crypto.randomUUID()**: Built-in Web API used for unique bubble and game keys
 
 ## Important Conventions
 
