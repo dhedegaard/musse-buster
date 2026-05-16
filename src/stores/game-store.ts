@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid'
 import { match } from 'ts-pattern'
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
@@ -44,7 +43,7 @@ export const useGameStore = create<GameStore>()(
         pausedTickDelta: undefined,
         gameState: 'main-menu' as const,
         currentGame: {
-          key: nanoid(),
+          key: crypto.randomUUID(),
           score: 0,
           startedAt: new Date().toISOString(),
         } satisfies Game,
@@ -58,7 +57,7 @@ export const useGameStore = create<GameStore>()(
               throw new Error('Color is null, bug in the code!')
             }
             return Bubble.parse({
-              key: nanoid(),
+              key: crypto.randomUUID(),
               type: Math.random() <= 0.015 ? 'bomb' : 'normal',
               x,
               y: 0,
@@ -145,7 +144,7 @@ export const useGameStore = create<GameStore>()(
             bubbles: [],
             gameState: 'running',
             currentGame: Game.parse({
-              key: nanoid(),
+              key: crypto.randomUUID(),
               score: 0,
               startedAt: now.toISOString(),
             } satisfies Game),
