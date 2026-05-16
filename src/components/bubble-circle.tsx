@@ -19,6 +19,21 @@ interface Props {
   bubble: Bubble
 }
 
+function calcTransitionDuration(animation: Bubble['animation'], lastFallDelta: number): string {
+  switch (animation) {
+    case 'fall': {
+      return `${(lastFallDelta * 150).toString()}ms`
+    }
+    case 'pushed-up':
+    case 'spawning': {
+      return '0ms'
+    }
+    default: {
+      assertNever(animation)
+    }
+  }
+}
+
 const circleVariants = cva(styles['Circle'], {
   variants: {
     color: {
@@ -59,22 +74,7 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
   }, [bubble.animation, currentY, deferredY])
 
   const styleObject = useMemo<CSSProperties>(
-    () => ({
-      transitionDuration: (() => {
-        switch (bubble.animation) {
-          case 'fall': {
-            return `${(lastFallDelta * 150).toString()}ms`
-          }
-          case 'pushed-up':
-          case 'spawning': {
-            return '0ms'
-          }
-          default: {
-            assertNever(bubble.animation)
-          }
-        }
-      })(),
-    }),
+    () => ({ transitionDuration: calcTransitionDuration(bubble.animation, lastFallDelta) }),
     [bubble.animation, lastFallDelta]
   )
 
