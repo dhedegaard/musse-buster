@@ -37,10 +37,11 @@ Zod schemas (imported from `zod/mini`) define both schema and TypeScript interfa
 - `board.tsx` — client component, `requestAnimationFrame` game loop, auto-pauses on tab hide, renders SVG grid
   - In `running`/`paused`: `p`/space=togglePause, `n`=reset, `↑`=debug add line
   - In `game-over`/`main-menu`: `n`/space=reset
-- All component selectors use `useShallow()` from `zustand/react/shallow` for re-render optimization
+- All component selectors combine multiple fields into a single `useGameStore(useShallow((state) => ({ ... })))` call — never multiple separate `useGameStore` calls per component
 
 ### Patterns
 - **`ts-pattern`**: Use `match(value).returnType<T>().with(...).exhaustive()` for all union type branching (game state, bubble type). This enforces exhaustive handling at compile time.
 - **Strict TypeScript**: Config extends `@tsconfig/strictest`. Strict boolean expressions enforced — conditionals must be explicit booleans.
 - **Zod imports**: Use `import * as z from 'zod/mini'` (wildcard import for correct tree-shaking).
+- **Module-level constants**: Hoist stable event handlers and static values to module scope rather than using `useCallback(fn, [])` inside components. See `noop` and `preventContextMenu` in `board.tsx`.
 - **Formatting**: Prettier with `prettier-plugin-tailwindcss`. 100-char line width, 2-space indent, `trailingComma: "es5"`, single quotes.
