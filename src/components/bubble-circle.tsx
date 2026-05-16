@@ -101,17 +101,11 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
         r={0.5 - 0.03}
         strokeWidth={0.025}
         style={styleObject}
-        className={circleVariants(
-          useMemo(
-            () =>
-              ({
-                color: bubble.color,
-                type: bubble.type,
-                animation: bubble.animation,
-              }) satisfies CircleVariants,
-            [bubble.animation, bubble.color, bubble.type]
-          )
-        )}
+        className={circleVariants({
+          color: bubble.color,
+          type: bubble.type,
+          animation: bubble.animation,
+        } satisfies CircleVariants)}
       />
       {bubble.type === 'bomb' && (
         <text
