@@ -16,6 +16,45 @@ const preventContextMenu: MouseEventHandler<SVGElement> = (event) => {
   event.preventDefault()
 }
 
+const handleKeyDown = (event: KeyboardEvent) => {
+  if (event.metaKey || event.ctrlKey) {
+    return
+  }
+  const { gameState } = useGameStore.getState()
+  switch (gameState) {
+    case 'running':
+    case 'paused': {
+      if (event.key === 'p' || event.key === ' ') {
+        useGameStore.getState().togglePause()
+      }
+      if (event.key === 'n') {
+        useGameStore.getState().reset()
+      }
+      if (event.key === 'ArrowUp') {
+        useGameStore.getState().addBubbleLine()
+      }
+      break
+    }
+    case 'game-over':
+    case 'main-menu': {
+      if (event.key === 'n' || event.key === ' ') {
+        useGameStore.getState().reset()
+      }
+      break
+    }
+    default: {
+      assertNever(gameState)
+    }
+  }
+}
+
+const handleVisibilityChange = () => {
+  const { gameState } = useGameStore.getState()
+  if (gameState === 'running' && document.hidden) {
+    useGameStore.getState().togglePause()
+  }
+}
+
 const handleClickGameOverlay: MouseEventHandler<HTMLElement> = () => {
   const { gameState } = useGameStore.getState()
   switch (gameState) {
@@ -64,78 +103,25 @@ export const Board = memo(function Board() {
 
   useEffect(() => {
     const abortController = new AbortController()
-    globalThis.document.addEventListener(
-      'keydown',
-      (event) => {
-        if (event.metaKey || event.ctrlKey) {
-          return
-        }
-        switch (gameState) {
-          case 'running':
-          case 'paused': {
-            if (event.key === 'p' || event.key === ' ') {
-              useGameStore.getState().togglePause()
-            }
-            if (event.key === 'n') {
-              useGameStore.getState().reset()
-            }
-            if (event.key === 'ArrowUp') {
-              useGameStore.getState().addBubbleLine()
-            }
-            break
-          }
-          case 'game-over':
-          case 'main-menu': {
-            if (event.key === 'n' || event.key === ' ') {
-              useGameStore.getState().reset()
-            }
-            break
-          }
-          default: {
-            assertNever(gameState)
-          }
-        }
-      },
-      {
-        signal: abortController.signal,
-        passive: true,
-      }
-    )
+    globalThis.document.addEventListener('keydown', handleKeyDown, {
+      signal: abortController.signal,
+      passive: true,
+    })
     return () => {
       abortController.abort()
     }
-  }, [gameState])
+  }, [])
 
   useEffect(() => {
-    switch (gameState) {
-      case 'game-over':
-      case 'main-menu':
-      case 'paused': {
-        return
-      }
-      case 'running': {
-        const abortController = new AbortController()
-        globalThis.document.addEventListener(
-          'visibilitychange',
-          () => {
-            if (document.hidden) {
-              useGameStore.getState().togglePause()
-            }
-          },
-          {
-            signal: abortController.signal,
-            passive: true,
-          }
-        )
-        return () => {
-          abortController.abort()
-        }
-      }
-      default: {
-        assertNever(gameState)
-      }
+    const abortController = new AbortController()
+    globalThis.document.addEventListener('visibilitychange', handleVisibilityChange, {
+      signal: abortController.signal,
+      passive: true,
+    })
+    return () => {
+      abortController.abort()
     }
-  }, [gameState])
+  }, [])
 
   return (
     <main className="relative mx-auto my-4 box-border flex h-[calc(100vh-64px)] w-[60vh] flex-col items-stretch gap-4">
