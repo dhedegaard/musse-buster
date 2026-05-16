@@ -103,7 +103,7 @@ export const useGameStore = create<GameStore>()(
             }
 
             return match(clickedBubble)
-              .returnType<GameStore | Partial<GameStore>>()
+              .returnType<Partial<GameStore>>()
               .with({ type: 'bomb' }, (clickedBubble) => {
                 const nextBubbles = applyBombClick(state.bubbles, clickedBubble)
                 return {
