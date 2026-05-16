@@ -102,18 +102,16 @@ export const useGameStore = create<GameStore>()(
             return match(clickedBubble)
               .returnType<GameStore | Partial<GameStore>>()
               .with({ type: 'bomb' }, (clickedBubble) => {
-                const nextBubbles = state.bubbles
-                  // Remove the clicked bomb
-                  .filter((b) => b.key !== clickedBubble.key)
-                  // Remove all normal bubbles of the same color.
-                  .filter((b) => !(b.color === clickedBubble.color && b.type === 'normal'))
+                const nextBubbles = state.bubbles.filter(
+                  (bubble) =>
+                    // Remove the clicked bomb
+                    bubble.key !== clickedBubble.key &&
+                    // Remove all normal bubbles of the same color.
+                    !(bubble.color === clickedBubble.color && bubble.type === 'normal')
+                )
                 changed = true
                 return {
-                  bubbles: state.bubbles
-                    // Remove the clicked bomb
-                    .filter((b) => b.key !== clickedBubble.key)
-                    // Remove all normal bubbles of the same color.
-                    .filter((b) => !(b.color === clickedBubble.color && b.type === 'normal')),
+                  bubbles: nextBubbles,
                   currentGame: Game.parse({
                     key: state.currentGame.key,
                     score: state.currentGame.score + (state.bubbles.length - nextBubbles.length),
@@ -132,11 +130,11 @@ export const useGameStore = create<GameStore>()(
                   }
                   seenKeys.add(bubble.key)
                   const neighbors = state.bubbles.filter(
-                    (b) =>
-                      ((Math.abs(b.x - bubble.x) === 1 && b.y === bubble.y) ||
-                        (Math.abs(b.y - bubble.y) === 1 && b.x === bubble.x)) &&
-                      b.color === color &&
-                      b.type === 'normal'
+                    (neighbor) =>
+                      ((Math.abs(neighbor.x - bubble.x) === 1 && neighbor.y === bubble.y) ||
+                        (Math.abs(neighbor.y - bubble.y) === 1 && neighbor.x === bubble.x)) &&
+                      neighbor.color === color &&
+                      neighbor.type === 'normal'
                   )
                   queue.push(...neighbors)
                 }
@@ -145,7 +143,7 @@ export const useGameStore = create<GameStore>()(
                 }
                 changed = true
                 return {
-                  bubbles: state.bubbles.filter((b) => !seenKeys.has(b.key)),
+                  bubbles: state.bubbles.filter((bubble) => !seenKeys.has(bubble.key)),
                   currentGame: Game.parse({
                     key: state.currentGame.key,
                     score: state.currentGame.score + seenKeys.size,
@@ -169,7 +167,7 @@ export const useGameStore = create<GameStore>()(
               sortedBubbles = sortedBubbles.map((bubble) => {
                 if (
                   bubble.y > 0 &&
-                  !sortedBubbles.some((b) => b.x === bubble.x && b.y === bubble.y - 1)
+                  !sortedBubbles.some((other) => other.x === bubble.x && other.y === bubble.y - 1)
                 ) {
                   changed = true
                   return Bubble.parse({
