@@ -20,38 +20,38 @@ const handleKeyDown = (event: KeyboardEvent) => {
   if (event.metaKey || event.ctrlKey) {
     return
   }
-  const { gameState } = useGameStore.getState()
-  switch (gameState) {
+  const state = useGameStore.getState()
+  switch (state.gameState) {
     case 'running':
     case 'paused': {
       if (event.key === 'p' || event.key === ' ') {
-        useGameStore.getState().togglePause()
+        state.togglePause()
       }
       if (event.key === 'n') {
-        useGameStore.getState().reset()
+        state.reset()
       }
       if (event.key === 'ArrowUp') {
-        useGameStore.getState().addBubbleLine()
+        state.addBubbleLine()
       }
       break
     }
     case 'game-over':
     case 'main-menu': {
       if (event.key === 'n' || event.key === ' ') {
-        useGameStore.getState().reset()
+        state.reset()
       }
       break
     }
     default: {
-      assertNever(gameState)
+      assertNever(state.gameState)
     }
   }
 }
 
 const handleVisibilityChange = () => {
-  const { gameState } = useGameStore.getState()
-  if (gameState === 'running' && document.hidden) {
-    useGameStore.getState().togglePause()
+  const state = useGameStore.getState()
+  if (state.gameState === 'running' && document.hidden) {
+    state.togglePause()
   }
 }
 
@@ -93,22 +93,22 @@ function OverlayContent({ gameState }: OverlayContentProps) {
 }
 
 const handleClickGameOverlay: MouseEventHandler<HTMLElement> = () => {
-  const { gameState } = useGameStore.getState()
-  switch (gameState) {
+  const state = useGameStore.getState()
+  switch (state.gameState) {
     case 'running':
     case 'game-over': {
       break
     }
     case 'paused': {
-      useGameStore.getState().togglePause()
+      state.togglePause()
       break
     }
     case 'main-menu': {
-      useGameStore.getState().reset()
+      state.reset()
       break
     }
     default: {
-      assertNever(gameState)
+      assertNever(state.gameState)
     }
   }
 }
