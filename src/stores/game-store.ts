@@ -2,10 +2,6 @@ import { nanoid } from 'nanoid'
 import { match } from 'ts-pattern'
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
-import { Bubble } from '../models/bubble'
-import { colorOptions } from '../models/color'
-import { BOARD_WIDTH } from '../models/consts'
-import { Game } from '../models/game'
 import {
   INITIAL_TICK_RATE,
   applyBombClick,
@@ -14,6 +10,10 @@ import {
   findFloodFillGroup,
   isGameOver,
 } from '../game-logic'
+import { Bubble } from '../models/bubble'
+import { colorOptions } from '../models/color'
+import { BOARD_WIDTH } from '../models/consts'
+import { Game } from '../models/game'
 
 interface GameStore {
   prevTickTime: number
