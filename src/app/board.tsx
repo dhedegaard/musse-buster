@@ -15,9 +15,13 @@ import { SideButtons } from './side-buttons'
 const noop = () => {}
 
 export const Board = memo(function Board() {
-  const bubbles = useGameStore(useShallow((state) => state.bubbles))
-  const nextTickTime = useGameStore(useShallow((state) => state.nextTickTime))
-  const gameState = useGameStore(useShallow((state) => state.gameState))
+  const { bubbles, nextTickTime, gameState } = useGameStore(
+    useShallow((state) => ({
+      bubbles: state.bubbles,
+      nextTickTime: state.nextTickTime,
+      gameState: state.gameState,
+    }))
+  )
 
   useEffect(() => {
     if (gameState !== 'running') {

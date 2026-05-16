@@ -12,10 +12,14 @@ const keyframe: Keyframe[] = [
 export const BottomBar = memo(function BottomBar() {
   const ref = useRef<HTMLDivElement>(null)
 
-  const previousTickTime = useGameStore(useShallow((state) => state.prevTickTime))
-  const nextTickTime = useGameStore(useShallow((state) => state.nextTickTime))
-  const gameState = useGameStore(useShallow((state) => state.gameState))
-  const pausedTickDelta = useGameStore(useShallow((state) => state.pausedTickDelta))
+  const { previousTickTime, nextTickTime, gameState, pausedTickDelta } = useGameStore(
+    useShallow((state) => ({
+      previousTickTime: state.prevTickTime,
+      nextTickTime: state.nextTickTime,
+      gameState: state.gameState,
+      pausedTickDelta: state.pausedTickDelta,
+    }))
+  )
 
   useEffect(() => {
     const div = ref.current

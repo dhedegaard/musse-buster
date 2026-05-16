@@ -9,13 +9,16 @@ interface GameRow {
   type: 'current' | 'old'
 }
 export const HighScore = memo(function HighScore() {
-  const currentScore = useGameStore(useShallow((state) => state.currentGame.score))
+  const { currentScore, oldGames } = useGameStore(
+    useShallow((state) => ({
+      currentScore: state.currentGame.score,
+      oldGames: state.oldGames,
+    }))
+  )
   const currentGameRow = useMemo(
     () => ({ score: currentScore, key: 'current', type: 'current' }) satisfies GameRow,
     [currentScore]
   )
-
-  const oldGames = useGameStore(useShallow((state) => state.oldGames))
 
   const allGames = useMemo<readonly GameRow[]>(
     () =>
