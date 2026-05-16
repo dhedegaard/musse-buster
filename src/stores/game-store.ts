@@ -4,8 +4,16 @@ import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 import { Bubble } from '../models/bubble'
 import { colorOptions } from '../models/color'
-import { BOARD_HEIGHT, BOARD_WIDTH } from '../models/consts'
+import { BOARD_WIDTH } from '../models/consts'
 import { Game } from '../models/game'
+import {
+  INITIAL_TICK_RATE,
+  applyBombClick,
+  applyGravity as applyGravityLogic,
+  calcTickRate,
+  findFloodFillGroup,
+  isGameOver,
+} from '../game-logic'
 
 interface GameStore {
   prevTickTime: number
@@ -25,7 +33,6 @@ interface GameStore {
   togglePause: () => void
 }
 
-const INITIAL_TICK_RATE = 5200
 
 export const useGameStore = create<GameStore>()(
   devtools(
@@ -62,15 +69,12 @@ export const useGameStore = create<GameStore>()(
           })
           const now = Date.now()
           set((state) => {
-            if (state.bubbles.some((b) => b.y + 1 >= BOARD_HEIGHT)) {
+            if (isGameOver(state.bubbles)) {
               return {
                 gameState: 'game-over',
               }
             }
-            const nextTickRate = Math.max(
-              1500,
-              INITIAL_TICK_RATE - Math.floor(state.currentGame.score * 3)
-            )
+            const nextTickRate = calcTickRate(state.currentGame.score)
             return {
               prevTickTime: now,
               nextTickTime: now + state.tickRate,
@@ -92,7 +96,7 @@ export const useGameStore = create<GameStore>()(
           })
         },
         clickBubble(key) {
-          let changed = false
+          const prevLength = get().bubbles.length
           set((state) => {
             const clickedBubble = state.bubbles.find((bubble) => bubble.key === key)
             if (clickedBubble == null) {
@@ -102,14 +106,7 @@ export const useGameStore = create<GameStore>()(
             return match(clickedBubble)
               .returnType<GameStore | Partial<GameStore>>()
               .with({ type: 'bomb' }, (clickedBubble) => {
-                const nextBubbles = state.bubbles.filter(
-                  (bubble) =>
-                    // Remove the clicked bomb
-                    bubble.key !== clickedBubble.key &&
-                    // Remove all normal bubbles of the same color.
-                    !(bubble.color === clickedBubble.color && bubble.type === 'normal')
-                )
-                changed = true
+                const nextBubbles = applyBombClick(state.bubbles, clickedBubble)
                 return {
                   bubbles: nextBubbles,
                   currentGame: Game.parse({
@@ -119,71 +116,28 @@ export const useGameStore = create<GameStore>()(
                   } satisfies Game),
                 }
               })
-              .with({ type: 'normal' }, (clickedBubble) => {
-                const queue: Bubble[] = [clickedBubble]
-                const { color } = clickedBubble
-                const seenKeys = new Set<string>()
-                while (queue.length > 0) {
-                  const bubble = queue.pop()
-                  if (bubble == null || seenKeys.has(bubble.key)) {
-                    continue
-                  }
-                  seenKeys.add(bubble.key)
-                  const neighbors = state.bubbles.filter(
-                    (neighbor) =>
-                      ((Math.abs(neighbor.x - bubble.x) === 1 && neighbor.y === bubble.y) ||
-                        (Math.abs(neighbor.y - bubble.y) === 1 && neighbor.x === bubble.x)) &&
-                      neighbor.color === color &&
-                      neighbor.type === 'normal'
-                  )
-                  queue.push(...neighbors)
-                }
-                if (seenKeys.size < 3) {
+              .with({ type: 'normal' }, () => {
+                const group = findFloodFillGroup(state.bubbles, key)
+                if (group.size === 0) {
                   return {}
                 }
-                changed = true
                 return {
-                  bubbles: state.bubbles.filter((bubble) => !seenKeys.has(bubble.key)),
+                  bubbles: state.bubbles.filter((bubble) => !group.has(bubble.key)),
                   currentGame: Game.parse({
                     key: state.currentGame.key,
-                    score: state.currentGame.score + seenKeys.size,
+                    score: state.currentGame.score + group.size,
                     startedAt: state.currentGame.startedAt,
                   } satisfies Game),
                 }
               })
               .exhaustive()
           })
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-          if (changed) {
+          if (get().bubbles.length !== prevLength) {
             get().applyGravity()
           }
         },
         applyGravity() {
-          set(({ bubbles }) => {
-            let sortedBubbles = bubbles.toSorted((a, b) => a.y - b.y)
-            let changed = true
-            while (changed) {
-              changed = false
-              sortedBubbles = sortedBubbles.map((bubble) => {
-                if (
-                  bubble.y > 0 &&
-                  !sortedBubbles.some((other) => other.x === bubble.x && other.y === bubble.y - 1)
-                ) {
-                  changed = true
-                  return Bubble.parse({
-                    key: bubble.key,
-                    type: bubble.type,
-                    x: bubble.x,
-                    y: bubble.y - 1,
-                    color: bubble.color,
-                    animation: 'fall',
-                  } satisfies Bubble)
-                }
-                return bubble
-              })
-            }
-            return { bubbles: [...sortedBubbles] }
-          })
+          set(({ bubbles }) => ({ bubbles: applyGravityLogic(bubbles) }))
         },
         reset() {
           const now = new Date()
