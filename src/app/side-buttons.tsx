@@ -11,7 +11,7 @@ export const SideButtons = memo(function SideButtons() {
     useGameStore.getState().reset()
   }, [])
 
-  const handleClicktogglePause = useCallback(() => {
+  const handleClickTogglePause = useCallback(() => {
     useGameStore.getState().togglePause()
   }, [])
 
@@ -23,7 +23,7 @@ export const SideButtons = memo(function SideButtons() {
     <div className="absolute left-full top-0 m-4 flex w-full flex-col items-start gap-2">
       <button
         type="button"
-        onClick={handleClicktogglePause}
+        onClick={handleClickTogglePause}
         disabled={gameState === 'game-over'}
         className="btn btn-primary btn-sm flex items-center gap-1 text-white"
       >
