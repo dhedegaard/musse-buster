@@ -15,11 +15,6 @@ export const HighScore = memo(function HighScore() {
       oldGames: state.oldGames,
     }))
   )
-  const currentGameRow = useMemo(
-    () => ({ score: currentScore, key: 'current', type: 'current' }) satisfies GameRow,
-    [currentScore]
-  )
-
   const allGames = useMemo<readonly GameRow[]>(
     () =>
       [
@@ -30,9 +25,9 @@ export const HighScore = memo(function HighScore() {
           .map<GameRow>(
             (game) => ({ score: game.score, key: game.key, type: 'old' }) satisfies GameRow
           ),
-        currentGameRow,
+        { score: currentScore, key: 'current', type: 'current' } satisfies GameRow,
       ].toSorted((a, b) => b.score - a.score),
-    [currentGameRow, oldGames]
+    [currentScore, oldGames]
   )
 
   return (
