@@ -17,10 +17,9 @@ const preventContextMenu: MouseEventHandler<SVGElement> = (event) => {
 }
 
 export const Board = memo(function Board() {
-  const { bubbles, nextTickTime, gameState } = useGameStore(
+  const { bubbles, gameState } = useGameStore(
     useShallow((state) => ({
       bubbles: state.bubbles,
-      nextTickTime: state.nextTickTime,
       gameState: state.gameState,
     }))
   )
@@ -31,8 +30,7 @@ export const Board = memo(function Board() {
     }
 
     const frameCallback = () => {
-      const now = Date.now()
-      if (now >= nextTickTime) {
+      if (Date.now() >= useGameStore.getState().nextTickTime) {
         useGameStore.getState().addBubbleLine()
       }
       rafHandle = requestAnimationFrame(frameCallback)
@@ -41,7 +39,7 @@ export const Board = memo(function Board() {
     return () => {
       cancelAnimationFrame(rafHandle)
     }
-  }, [gameState, nextTickTime])
+  }, [gameState])
 
   useEffect(() => {
     const abortController = new AbortController()
