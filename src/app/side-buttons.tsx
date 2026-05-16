@@ -1,19 +1,19 @@
 'use client'
 
-import { memo, useCallback } from 'react'
+import { memo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useGameStore } from '../stores/game-store'
 
+const handleClickReset = () => {
+  useGameStore.getState().reset()
+}
+
+const handleClickTogglePause = () => {
+  useGameStore.getState().togglePause()
+}
+
 export const SideButtons = memo(function SideButtons() {
   const gameState = useGameStore(useShallow((state) => state.gameState))
-
-  const handleClickReset = useCallback(() => {
-    useGameStore.getState().reset()
-  }, [])
-
-  const handleClickTogglePause = useCallback(() => {
-    useGameStore.getState().togglePause()
-  }, [])
 
   if (gameState === 'main-menu') {
     return null
