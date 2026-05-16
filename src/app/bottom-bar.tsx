@@ -7,23 +7,23 @@ import { assertNever } from '../utils'
 const handleClick: MouseEventHandler<HTMLElement> = (event) => {
   event.preventDefault()
   event.stopPropagation()
-  const { gameState } = useGameStore.getState()
-  switch (gameState) {
+  const state = useGameStore.getState()
+  switch (state.gameState) {
     case 'running': {
-      useGameStore.getState().addBubbleLine()
+      state.addBubbleLine()
       break
     }
     case 'main-menu':
     case 'game-over': {
-      useGameStore.getState().reset()
+      state.reset()
       break
     }
     case 'paused': {
-      useGameStore.getState().togglePause()
+      state.togglePause()
       break
     }
     default: {
-      assertNever(gameState)
+      assertNever(state.gameState)
     }
   }
 }
