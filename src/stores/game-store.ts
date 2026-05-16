@@ -109,9 +109,8 @@ export const useGameStore = create<GameStore>()(
                 return {
                   bubbles: nextBubbles,
                   currentGame: Game.parse({
-                    key: state.currentGame.key,
+                    ...state.currentGame,
                     score: state.currentGame.score + (state.bubbles.length - nextBubbles.length),
-                    startedAt: state.currentGame.startedAt,
                   } satisfies Game),
                 }
               })
@@ -123,9 +122,8 @@ export const useGameStore = create<GameStore>()(
                 return {
                   bubbles: state.bubbles.filter((bubble) => !group.has(bubble.key)),
                   currentGame: Game.parse({
-                    key: state.currentGame.key,
+                    ...state.currentGame,
                     score: state.currentGame.score + group.size,
-                    startedAt: state.currentGame.startedAt,
                   } satisfies Game),
                 }
               })
@@ -159,25 +157,28 @@ export const useGameStore = create<GameStore>()(
           get().addBubbleLine()
         },
         togglePause() {
-          set((state) => {
-            if (state.gameState === 'running') {
-              const tickDelta = Date.now() - state.prevTickTime
-              return {
-                gameState: 'paused',
-                pausedTickDelta: tickDelta <= 0 || tickDelta > state.tickRate ? 0 : tickDelta,
-              }
-            } else if (state.gameState === 'paused') {
-              const nextTickStart = Date.now() - (state.pausedTickDelta ?? 0)
-              return {
-                gameState: 'running',
-                prevTickTime: nextTickStart,
-                nextTickTime: nextTickStart + state.tickRate,
-                pausedTickDelta: 0,
-              }
-            } else {
-              return {}
-            }
-          })
+          set((state) =>
+            match(state.gameState)
+              .returnType<Partial<GameStore>>()
+              .with('running', () => {
+                const tickDelta = Date.now() - state.prevTickTime
+                return {
+                  gameState: 'paused' as const,
+                  pausedTickDelta: tickDelta <= 0 || tickDelta > state.tickRate ? 0 : tickDelta,
+                }
+              })
+              .with('paused', () => {
+                const nextTickStart = Date.now() - (state.pausedTickDelta ?? 0)
+                return {
+                  gameState: 'running' as const,
+                  prevTickTime: nextTickStart,
+                  nextTickTime: nextTickStart + state.tickRate,
+                  pausedTickDelta: 0,
+                }
+              })
+              .with('main-menu', 'game-over', () => ({}))
+              .exhaustive()
+          )
         },
       }),
       { name: 'musse-buster-v0' }
