@@ -13,6 +13,9 @@ import { HighScore } from './high-score'
 import { SideButtons } from './side-buttons'
 
 const noop = () => {}
+const preventContextMenu: MouseEventHandler<SVGElement> = (event) => {
+  event.preventDefault()
+}
 
 export const Board = memo(function Board() {
   const { bubbles, nextTickTime, gameState } = useGameStore(
@@ -158,9 +161,7 @@ export const Board = memo(function Board() {
           viewBox={`0 0 ${BOARD_WIDTH.toString()} ${BOARD_HEIGHT.toString()}`}
           width="100%"
           className="max-h-screen max-w-full"
-          onContextMenu={useCallback<MouseEventHandler<SVGElement>>((event) => {
-            event.preventDefault()
-          }, [])}
+          onContextMenu={preventContextMenu}
         >
           <rect
             x={0}
