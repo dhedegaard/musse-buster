@@ -1,7 +1,6 @@
 import clsx from 'clsx'
 import { memo, type MouseEventHandler, useEffect, useRef } from 'react'
 import colors from 'tailwindcss/colors'
-import { useShallow } from 'zustand/react/shallow'
 import { useGameStore } from '../stores/game-store'
 import { assertNever } from '../utils'
 
@@ -33,52 +32,66 @@ const keyframe: Keyframe[] = [
   { width: '0%', backgroundColor: colors.lime[400] },
   { width: '100%', backgroundColor: colors.sky[500] },
 ]
+
 export const BottomBar = memo(function BottomBar() {
   const ref = useRef<HTMLDivElement>(null)
-
-  const { previousTickTime, nextTickTime, gameState, pausedTickDelta } = useGameStore(
-    useShallow((state) => ({
-      previousTickTime: state.prevTickTime,
-      nextTickTime: state.nextTickTime,
-      gameState: state.gameState,
-      pausedTickDelta: state.pausedTickDelta,
-    }))
-  )
+  const gameState = useGameStore((state) => state.gameState)
 
   useEffect(() => {
-    const div = ref.current
-    if (div == null || (gameState !== 'running' && gameState !== 'paused')) {
-      return
-    }
-    const duration = nextTickTime - previousTickTime
-    const animateHandle = div.animate(keyframe, { duration, easing: 'linear' })
-    const percent = Math.min(
-      1,
-      Math.max(
-        0,
-        (() => {
-          switch (gameState) {
-            case 'running': {
-              return (Date.now() - previousTickTime) / (nextTickTime - previousTickTime)
+    const animateBar = () => {
+      const div = ref.current
+      if (div == null) return null
+      const { gameState, prevTickTime, nextTickTime, pausedTickDelta } = useGameStore.getState()
+      if (gameState !== 'running' && gameState !== 'paused') {
+        return null
+      }
+      const duration = nextTickTime - prevTickTime
+      const handle = div.animate(keyframe, { duration, easing: 'linear' })
+      const percent = Math.min(
+        1,
+        Math.max(
+          0,
+          (() => {
+            switch (gameState) {
+              case 'running': {
+                return (Date.now() - prevTickTime) / duration
+              }
+              case 'paused': {
+                return (pausedTickDelta ?? 0) / duration
+              }
+              default: {
+                assertNever(gameState)
+              }
             }
-            case 'paused': {
-              return (pausedTickDelta ?? 0) / duration
-            }
-            default: {
-              assertNever(gameState)
-            }
-          }
-        })()
+          })()
+        )
       )
-    )
-    animateHandle.currentTime = duration * percent
-    if (gameState === 'paused') {
-      animateHandle.pause()
+      handle.currentTime = duration * percent
+      if (gameState === 'paused') {
+        handle.pause()
+      }
+      return handle
     }
+
+    let handle = animateBar()
+
+    const unsubscribe = useGameStore.subscribe((state, prev) => {
+      if (
+        state.prevTickTime !== prev.prevTickTime ||
+        state.nextTickTime !== prev.nextTickTime ||
+        state.gameState !== prev.gameState ||
+        state.pausedTickDelta !== prev.pausedTickDelta
+      ) {
+        handle?.cancel()
+        handle = animateBar()
+      }
+    })
+
     return () => {
-      animateHandle.cancel()
+      unsubscribe()
+      handle?.cancel()
     }
-  }, [previousTickTime, nextTickTime, gameState, pausedTickDelta])
+  }, [])
 
   return (
     <button
