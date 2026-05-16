@@ -1,7 +1,7 @@
 'use client'
 
 import clsx from 'clsx'
-import { type MouseEventHandler, memo, useCallback, useEffect } from 'react'
+import { type MouseEventHandler, memo, useEffect } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { BubbleCircle } from '../components/bubble-circle'
 import { BOARD_HEIGHT, BOARD_WIDTH } from '../models/consts'
@@ -14,6 +14,27 @@ import { SideButtons } from './side-buttons'
 
 const preventContextMenu: MouseEventHandler<SVGElement> = (event) => {
   event.preventDefault()
+}
+
+const handleClickGameOverlay: MouseEventHandler<HTMLElement> = () => {
+  const { gameState } = useGameStore.getState()
+  switch (gameState) {
+    case 'running':
+    case 'game-over': {
+      break
+    }
+    case 'paused': {
+      useGameStore.getState().togglePause()
+      break
+    }
+    case 'main-menu': {
+      useGameStore.getState().reset()
+      break
+    }
+    default: {
+      assertNever(gameState)
+    }
+  }
 }
 
 export const Board = memo(function Board() {
@@ -116,29 +137,9 @@ export const Board = memo(function Board() {
     }
   }, [gameState])
 
-  const handleClickGameOverlay = useCallback<MouseEventHandler<HTMLElement>>(() => {
-    switch (gameState) {
-      case 'running':
-      case 'game-over': {
-        break
-      }
-      case 'paused': {
-        useGameStore.getState().togglePause()
-        break
-      }
-      case 'main-menu': {
-        useGameStore.getState().reset()
-        break
-      }
-      default: {
-        assertNever(gameState)
-      }
-    }
-  }, [gameState])
-
   return (
     <main className="relative mx-auto my-4 box-border flex h-[calc(100vh-64px)] w-[60vh] flex-col items-stretch gap-4">
-      <div className="absolute right-full top-0 m-4 flex flex-col items-end gap-4">
+      <div className="absolute top-0 right-full m-4 flex flex-col items-end gap-4">
         <CurrentScore />
         <HighScore />
       </div>
@@ -177,7 +178,7 @@ export const Board = memo(function Board() {
       {gameState !== 'running' && (
         <button
           type="button"
-          className="absolute inset-0 flex cursor-pointer select-none flex-col items-center justify-center gap-4 bg-white/70"
+          className="absolute inset-0 flex cursor-pointer flex-col items-center justify-center gap-4 bg-white/70 select-none"
           onClick={handleClickGameOverlay}
         >
           {(() => {

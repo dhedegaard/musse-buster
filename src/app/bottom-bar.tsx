@@ -1,9 +1,33 @@
 import clsx from 'clsx'
-import { memo, type MouseEventHandler, useCallback, useEffect, useRef } from 'react'
+import { memo, type MouseEventHandler, useEffect, useRef } from 'react'
 import colors from 'tailwindcss/colors'
 import { useShallow } from 'zustand/react/shallow'
 import { useGameStore } from '../stores/game-store'
 import { assertNever } from '../utils'
+
+const handleClick: MouseEventHandler<HTMLElement> = (event) => {
+  event.preventDefault()
+  event.stopPropagation()
+  const { gameState } = useGameStore.getState()
+  switch (gameState) {
+    case 'running': {
+      useGameStore.getState().addBubbleLine()
+      break
+    }
+    case 'main-menu':
+    case 'game-over': {
+      useGameStore.getState().reset()
+      break
+    }
+    case 'paused': {
+      useGameStore.getState().togglePause()
+      break
+    }
+    default: {
+      assertNever(gameState)
+    }
+  }
+}
 
 const keyframe: Keyframe[] = [
   { width: '0%', backgroundColor: colors.lime[400] },
@@ -55,32 +79,6 @@ export const BottomBar = memo(function BottomBar() {
       animateHandle.cancel()
     }
   }, [previousTickTime, nextTickTime, gameState, pausedTickDelta])
-
-  const handleClick = useCallback<MouseEventHandler<HTMLElement>>(
-    (event) => {
-      event.preventDefault()
-      event.stopPropagation()
-      switch (gameState) {
-        case 'running': {
-          useGameStore.getState().addBubbleLine()
-          break
-        }
-        case 'main-menu':
-        case 'game-over': {
-          useGameStore.getState().reset()
-          break
-        }
-        case 'paused': {
-          useGameStore.getState().togglePause()
-          break
-        }
-        default: {
-          assertNever(gameState)
-        }
-      }
-    },
-    [gameState]
-  )
 
   return (
     <button
