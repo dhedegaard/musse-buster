@@ -17,22 +17,24 @@ export function findFloodFillGroup(bubbles: readonly Bubble[], key: string): Set
     return new Set()
   }
   const { color } = clickedBubble
-  const queue: Bubble[] = [clickedBubble]
+  const byPos = new Map(bubbles.map((b) => [`${b.x.toString()},${b.y.toString()}`, b]))
+  const stack: Bubble[] = [clickedBubble]
   const seenKeys = new Set<string>()
-  while (queue.length > 0) {
-    const bubble = queue.pop()
-    if (bubble == null || seenKeys.has(bubble.key)) {
-      continue
-    }
+  while (stack.length > 0) {
+    const bubble = stack.pop()
+    if (bubble == null || seenKeys.has(bubble.key)) continue
     seenKeys.add(bubble.key)
-    const neighbors = bubbles.filter(
-      (neighbor) =>
-        ((Math.abs(neighbor.x - bubble.x) === 1 && neighbor.y === bubble.y) ||
-          (Math.abs(neighbor.y - bubble.y) === 1 && neighbor.x === bubble.x)) &&
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]] as const) {
+      const neighbor = byPos.get(`${(bubble.x + dx).toString()},${(bubble.y + dy).toString()}`)
+      if (
+        neighbor != null &&
         neighbor.color === color &&
-        neighbor.type === 'normal'
-    )
-    queue.push(...neighbors)
+        neighbor.type === 'normal' &&
+        !seenKeys.has(neighbor.key)
+      ) {
+        stack.push(neighbor)
+      }
+    }
   }
   return seenKeys.size >= 3 ? seenKeys : new Set()
 }
@@ -49,23 +51,14 @@ export function applyGravity(bubbles: readonly Bubble[]): readonly Bubble[] {
   let changed = true
   while (changed) {
     changed = false
+    const occupied = new Set(sortedBubbles.map((b) => `${b.x.toString()},${b.y.toString()}`))
     sortedBubbles = sortedBubbles.map((bubble) => {
-      if (
-        bubble.y > 0 &&
-        !sortedBubbles.some((other) => other.x === bubble.x && other.y === bubble.y - 1)
-      ) {
+      if (bubble.y > 0 && !occupied.has(`${bubble.x.toString()},${(bubble.y - 1).toString()}`)) {
         changed = true
-        return Bubble.parse({
-          key: bubble.key,
-          type: bubble.type,
-          x: bubble.x,
-          y: bubble.y - 1,
-          color: bubble.color,
-          animation: 'fall',
-        } satisfies Bubble)
+        return Bubble.parse({ ...bubble, y: bubble.y - 1, animation: 'fall' } satisfies Bubble)
       }
       return bubble
     })
   }
-  return [...sortedBubbles]
+  return sortedBubbles
 }
