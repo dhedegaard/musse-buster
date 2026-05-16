@@ -46,7 +46,6 @@ are periodically pushed onto the board.
 - Framework/UI: `next`, `react`, `react-dom`
 - State: `zustand`
 - Validation: `zod`
-- Pattern matching: `ts-pattern`
 - Styling: `tailwindcss`, `daisyui`, `class-variance-authority`, `clsx`
 
 ### Build and run

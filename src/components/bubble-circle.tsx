@@ -9,9 +9,9 @@ import {
   type CSSProperties,
   type MouseEventHandler,
 } from 'react'
-import { P, match } from 'ts-pattern'
 import type { Bubble } from '../models/bubble'
 import { BOARD_HEIGHT } from '../models/consts'
+import { assertNever } from '../utils'
 import { useGameStore } from '../stores/game-store'
 import styles from './bubble-circle.module.css'
 
@@ -60,11 +60,20 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
 
   const styleObject = useMemo<CSSProperties>(
     () => ({
-      transitionDuration: match({ animation: bubble.animation, lastFallDelta })
-        .returnType<CSSProperties['transitionDuration']>()
-        .with({ animation: 'fall' }, () => `${(lastFallDelta * 150).toString()}ms`)
-        .with({ animation: P.union('pushed-up', 'spawning') }, () => '0ms')
-        .exhaustive(),
+      transitionDuration: (() => {
+        switch (bubble.animation) {
+          case 'fall': {
+            return `${(lastFallDelta * 150).toString()}ms`
+          }
+          case 'pushed-up':
+          case 'spawning': {
+            return '0ms'
+          }
+          default: {
+            assertNever(bubble.animation)
+          }
+        }
+      })(),
     }),
     [bubble.animation, lastFallDelta]
   )

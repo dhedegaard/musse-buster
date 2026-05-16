@@ -1,9 +1,9 @@
 import clsx from 'clsx'
 import { memo, type MouseEventHandler, useCallback, useEffect, useRef } from 'react'
 import colors from 'tailwindcss/colors'
-import { match } from 'ts-pattern'
 import { useShallow } from 'zustand/react/shallow'
 import { useGameStore } from '../stores/game-store'
+import { assertNever } from '../utils'
 
 const keyframe: Keyframe[] = [
   { width: '0%', backgroundColor: colors.lime[400] },
@@ -32,14 +32,19 @@ export const BottomBar = memo(function BottomBar() {
       1,
       Math.max(
         0,
-        match(gameState)
-          .returnType<number>()
-          .with(
-            'running',
-            () => (Date.now() - previousTickTime) / (nextTickTime - previousTickTime)
-          )
-          .with('paused', () => (pausedTickDelta ?? 0) / duration)
-          .exhaustive()
+        (() => {
+          switch (gameState) {
+            case 'running': {
+              return (Date.now() - previousTickTime) / (nextTickTime - previousTickTime)
+            }
+            case 'paused': {
+              return (pausedTickDelta ?? 0) / duration
+            }
+            default: {
+              assertNever(gameState)
+            }
+          }
+        })()
       )
     )
     animateHandle.currentTime = duration * percent
@@ -55,18 +60,24 @@ export const BottomBar = memo(function BottomBar() {
     (event) => {
       event.preventDefault()
       event.stopPropagation()
-      match(gameState)
-        .returnType<undefined>()
-        .with('running', () => {
+      switch (gameState) {
+        case 'running': {
           useGameStore.getState().addBubbleLine()
-        })
-        .with('main-menu', 'game-over', () => {
+          break
+        }
+        case 'main-menu':
+        case 'game-over': {
           useGameStore.getState().reset()
-        })
-        .with('paused', () => {
+          break
+        }
+        case 'paused': {
           useGameStore.getState().togglePause()
-        })
-        .exhaustive()
+          break
+        }
+        default: {
+          assertNever(gameState)
+        }
+      }
     },
     [gameState]
   )

@@ -1,4 +1,3 @@
-import { match } from 'ts-pattern'
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 import {
@@ -13,6 +12,7 @@ import { Bubble } from '../models/bubble'
 import { colorOptions } from '../models/color'
 import { BOARD_WIDTH } from '../models/consts'
 import { Game } from '../models/game'
+import { assertNever } from '../utils'
 
 interface GameStore {
   prevTickTime: number
@@ -101,32 +101,36 @@ export const useGameStore = create<GameStore>()(
               return {}
             }
 
-            return match(clickedBubble)
-              .returnType<Partial<GameStore>>()
-              .with({ type: 'bomb' }, (clickedBubble) => {
-                const nextBubbles = applyBombClick(state.bubbles, clickedBubble)
-                return {
-                  bubbles: nextBubbles,
-                  currentGame: Game.parse({
-                    ...state.currentGame,
-                    score: state.currentGame.score + (state.bubbles.length - nextBubbles.length),
-                  } satisfies Game),
+            return (() => {
+              switch (clickedBubble.type) {
+                case 'bomb': {
+                  const nextBubbles = applyBombClick(state.bubbles, clickedBubble)
+                  return {
+                    bubbles: nextBubbles,
+                    currentGame: Game.parse({
+                      ...state.currentGame,
+                      score: state.currentGame.score + (state.bubbles.length - nextBubbles.length),
+                    } satisfies Game),
+                  }
                 }
-              })
-              .with({ type: 'normal' }, () => {
-                const group = findFloodFillGroup(state.bubbles, key)
-                if (group.size === 0) {
-                  return {}
+                case 'normal': {
+                  const group = findFloodFillGroup(state.bubbles, key)
+                  if (group.size === 0) {
+                    return {}
+                  }
+                  return {
+                    bubbles: state.bubbles.filter((bubble) => !group.has(bubble.key)),
+                    currentGame: Game.parse({
+                      ...state.currentGame,
+                      score: state.currentGame.score + group.size,
+                    } satisfies Game),
+                  }
                 }
-                return {
-                  bubbles: state.bubbles.filter((bubble) => !group.has(bubble.key)),
-                  currentGame: Game.parse({
-                    ...state.currentGame,
-                    score: state.currentGame.score + group.size,
-                  } satisfies Game),
+                default: {
+                  assertNever(clickedBubble.type)
                 }
-              })
-              .exhaustive()
+              }
+            })()
           })
           if (get().bubbles.length !== prevLength) {
             get().applyGravity()
@@ -157,26 +161,33 @@ export const useGameStore = create<GameStore>()(
         },
         togglePause() {
           set((state) =>
-            match(state.gameState)
-              .returnType<Partial<GameStore>>()
-              .with('running', () => {
-                const tickDelta = Date.now() - state.prevTickTime
-                return {
-                  gameState: 'paused' as const,
-                  pausedTickDelta: tickDelta <= 0 || tickDelta > state.tickRate ? 0 : tickDelta,
+            (() => {
+              switch (state.gameState) {
+                case 'running': {
+                  const tickDelta = Date.now() - state.prevTickTime
+                  return {
+                    gameState: 'paused' as const,
+                    pausedTickDelta: tickDelta <= 0 || tickDelta > state.tickRate ? 0 : tickDelta,
+                  }
                 }
-              })
-              .with('paused', () => {
-                const nextTickStart = Date.now() - (state.pausedTickDelta ?? 0)
-                return {
-                  gameState: 'running' as const,
-                  prevTickTime: nextTickStart,
-                  nextTickTime: nextTickStart + state.tickRate,
-                  pausedTickDelta: 0,
+                case 'paused': {
+                  const nextTickStart = Date.now() - (state.pausedTickDelta ?? 0)
+                  return {
+                    gameState: 'running' as const,
+                    prevTickTime: nextTickStart,
+                    nextTickTime: nextTickStart + state.tickRate,
+                    pausedTickDelta: 0,
+                  }
                 }
-              })
-              .with('main-menu', 'game-over', () => ({}))
-              .exhaustive()
+                case 'main-menu':
+                case 'game-over': {
+                  return {}
+                }
+                default: {
+                  assertNever(state.gameState)
+                }
+              }
+            })()
           )
         },
       }),

@@ -1,12 +1,12 @@
 'use client'
 
 import clsx from 'clsx'
-import { type MouseEventHandler, type ReactNode, memo, useCallback, useEffect } from 'react'
-import { match } from 'ts-pattern'
+import { type MouseEventHandler, memo, useCallback, useEffect } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { BubbleCircle } from '../components/bubble-circle'
 import { BOARD_HEIGHT, BOARD_WIDTH } from '../models/consts'
 import { useGameStore } from '../stores/game-store'
+import { assertNever } from '../utils'
 import { BottomBar } from './bottom-bar'
 import { CurrentScore } from './current-score'
 import { HighScore } from './high-score'
@@ -44,100 +44,113 @@ export const Board = memo(function Board() {
     }
   }, [gameState, nextTickTime])
 
-  useEffect(
-    () =>
-      match(gameState)
-        .returnType<undefined | (() => void)>()
-        .with('running', 'paused', () => {
-          const abortController = new AbortController()
-          globalThis.document.addEventListener(
-            'keydown',
-            (event) => {
-              if (event.metaKey || event.ctrlKey) {
-                return
-              }
-              if (event.key === 'p' || event.key === ' ') {
-                useGameStore.getState().togglePause()
-              }
-              if (event.key === 'n') {
-                useGameStore.getState().reset()
-              }
-              if (event.key === 'ArrowUp') {
-                useGameStore.getState().addBubbleLine()
-              }
-            },
-            {
-              signal: abortController.signal,
-              passive: true,
+  useEffect(() => {
+    switch (gameState) {
+      case 'running':
+      case 'paused': {
+        const abortController = new AbortController()
+        globalThis.document.addEventListener(
+          'keydown',
+          (event) => {
+            if (event.metaKey || event.ctrlKey) {
+              return
             }
-          )
-          return () => {
-            abortController.abort()
-          }
-        })
-        .with('game-over', 'main-menu', () => {
-          const abortController = new AbortController()
-          globalThis.document.addEventListener(
-            'keydown',
-            (event) => {
-              if (event.metaKey || event.ctrlKey) {
-                return
-              }
-              if (event.key === 'n' || event.key === ' ') {
-                useGameStore.getState().reset()
-              }
-            },
-            {
-              signal: abortController.signal,
-              passive: true,
+            if (event.key === 'p' || event.key === ' ') {
+              useGameStore.getState().togglePause()
             }
-          )
-          return () => {
-            abortController.abort()
+            if (event.key === 'n') {
+              useGameStore.getState().reset()
+            }
+            if (event.key === 'ArrowUp') {
+              useGameStore.getState().addBubbleLine()
+            }
+          },
+          {
+            signal: abortController.signal,
+            passive: true,
           }
-        })
-        .exhaustive(),
-    [gameState]
-  )
+        )
+        return () => {
+          abortController.abort()
+        }
+      }
+      case 'game-over':
+      case 'main-menu': {
+        const abortController = new AbortController()
+        globalThis.document.addEventListener(
+          'keydown',
+          (event) => {
+            if (event.metaKey || event.ctrlKey) {
+              return
+            }
+            if (event.key === 'n' || event.key === ' ') {
+              useGameStore.getState().reset()
+            }
+          },
+          {
+            signal: abortController.signal,
+            passive: true,
+          }
+        )
+        return () => {
+          abortController.abort()
+        }
+      }
+      default: {
+        assertNever(gameState)
+      }
+    }
+  }, [gameState])
 
-  useEffect(
-    () =>
-      match(gameState)
-        .returnType<undefined | (() => void)>()
-        .with('game-over', 'main-menu', 'paused', () => noop)
-        .with('running', () => {
-          const abortController = new AbortController()
-          globalThis.document.addEventListener(
-            'visibilitychange',
-            () => {
-              if (document.hidden) {
-                useGameStore.getState().togglePause()
-              }
-            },
-            {
-              signal: abortController.signal,
-              passive: true,
+  useEffect(() => {
+    switch (gameState) {
+      case 'game-over':
+      case 'main-menu':
+      case 'paused': {
+        return noop
+      }
+      case 'running': {
+        const abortController = new AbortController()
+        globalThis.document.addEventListener(
+          'visibilitychange',
+          () => {
+            if (document.hidden) {
+              useGameStore.getState().togglePause()
             }
-          )
-          return () => {
-            abortController.abort()
+          },
+          {
+            signal: abortController.signal,
+            passive: true,
           }
-        })
-        .exhaustive(),
-    [gameState]
-  )
+        )
+        return () => {
+          abortController.abort()
+        }
+      }
+      default: {
+        assertNever(gameState)
+      }
+    }
+  }, [gameState])
 
   const handleClickGameOverlay = useCallback<MouseEventHandler<HTMLElement>>(() => {
-    match(gameState)
-      .returnType<unknown>()
-      .with('running', 'game-over', () => {})
-      .with('paused', () => {
+    switch (gameState) {
+      case 'running':
+      case 'game-over': {
+        break
+      }
+      case 'paused': {
         useGameStore.getState().togglePause()
-      })
-      .with('main-menu', () => {
+        break
+      }
+      case 'main-menu': {
         useGameStore.getState().reset()
-      })
-      .exhaustive()
+        break
+      }
+      default: {
+        assertNever(gameState)
+      }
+    }
   }, [gameState])
 
   return (
@@ -184,31 +197,41 @@ export const Board = memo(function Board() {
           className="absolute inset-0 flex cursor-pointer select-none flex-col items-center justify-center gap-4 bg-white/70"
           onClick={handleClickGameOverlay}
         >
-          {match(gameState)
-            .returnType<ReactNode>()
-            .with('paused', () => (
-              <>
-                <div className="text-3xl font-bold">Paused!</div>
-                <div className="text-xl font-bold">
-                  Click here, or press &apos;P&apos;, to continue
-                </div>
-              </>
-            ))
-            .with('game-over', () => (
-              <>
-                <div className="text-3xl font-bold">GAME OVER!</div>
-                <div className="text-xl font-bold">
-                  Click on the new game button (or press &apos;N&apos;), to start a new game
-                </div>
-              </>
-            ))
-            .with('main-menu', () => (
-              <>
-                <div className="text-3xl font-bold">MUSSE BUSTER!</div>
-                <div className="text-xl font-bold">Click here to start a game</div>
-              </>
-            ))
-            .exhaustive()}
+          {(() => {
+            switch (gameState) {
+              case 'paused': {
+                return (
+                  <>
+                    <div className="text-3xl font-bold">Paused!</div>
+                    <div className="text-xl font-bold">
+                      Click here, or press &apos;P&apos;, to continue
+                    </div>
+                  </>
+                )
+              }
+              case 'game-over': {
+                return (
+                  <>
+                    <div className="text-3xl font-bold">GAME OVER!</div>
+                    <div className="text-xl font-bold">
+                      Click on the new game button (or press &apos;N&apos;), to start a new game
+                    </div>
+                  </>
+                )
+              }
+              case 'main-menu': {
+                return (
+                  <>
+                    <div className="text-3xl font-bold">MUSSE BUSTER!</div>
+                    <div className="text-xl font-bold">Click here to start a game</div>
+                  </>
+                )
+              }
+              default: {
+                assertNever(gameState)
+              }
+            }
+          })()}
         </button>
       )}
 

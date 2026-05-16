@@ -54,11 +54,11 @@ All models in `src/models/` use **Zod validators** with interfaces extending inf
 - Always use `.parse()` when constructing bubbles/games; this coerces values (e.g., defaults `type: 'normal'`)
 - Comment in code documents intentional coercion behavior (see `bubble.ts` type field)
 
-### Pattern Matching with `ts-pattern`
+### Exhaustive Switches
 
-- Extensively uses `.match()` for exhaustive handling of union types (game state, bubble types)
-- Pattern: `match(value).returnType<Type>().with(case1, handler1)...exhaustive()`
-- Prevents unhandled cases at compile time
+- Uses `switch` with `default: assertNever(value)` for exhaustive handling of union types (game state, bubble types)
+- `assertNever` (from `src/utils.ts`) accepts `never` and throws a `TypeError` — enforces exhaustive handling at compile time and runtime
+- All case bodies use explicit `{}` blocks
 
 ### Strict TypeScript
 
@@ -96,7 +96,7 @@ npm run start       # Serve production build
 1. Define Zod schema in appropriate `models/` file if adding data structures
 2. Update `GameStore` interface in `game-store.ts`
 3. Implement action method using `set()` / `get()` from Zustand hook
-4. Use `match()` patterns for UI logic in components
+4. Use `switch` with `assertNever` for any new union type branching
 5. Run `npm run lint` before commit
 
 ## Integration Points & Dependencies
@@ -104,7 +104,6 @@ npm run start       # Serve production build
 - **Next.js 15 & React 19**: App router, client components via `'use client'` directive
 - **Zustand & Middleware**: Store creation, Redux DevTools integration, persistence
 - **Zod (v4-mini)**: Lightweight validation; used for all data models
-- **ts-pattern**: Pattern matching for exhaustive type checking
 - **Tailwind CSS + DaisyUI**: Utility classes for responsive layout
 - **crypto.randomUUID()**: Built-in Web API used for unique bubble and game keys
 

@@ -46,7 +46,7 @@ Zod schemas (imported from `zod/mini`) define both schema and TypeScript interfa
 - All component selectors combine multiple fields into a single `useGameStore(useShallow((state) => ({ ... })))` call — never multiple separate `useGameStore` calls per component
 
 ### Patterns
-- **`ts-pattern`**: Use `match(value).returnType<T>().with(...).exhaustive()` for all union type branching (game state, bubble type). This enforces exhaustive handling at compile time.
+- **Exhaustive switches**: Use `switch` with `default: assertNever(value)` for all union type branching (game state, bubble type). `assertNever` (from `src/utils.ts`) accepts `never` and throws a `TypeError` — this enforces exhaustive handling at compile time and runtime.
 - **Strict TypeScript**: Config extends `@tsconfig/strictest`. Strict boolean expressions enforced — conditionals must be explicit booleans.
 - **Zod imports**: Use `import * as z from 'zod/mini'` (wildcard import for correct tree-shaking).
 - **Module-level constants**: Hoist stable event handlers and static values to module scope rather than using `useCallback(fn, [])` inside components. See `noop` and `preventContextMenu` in `board.tsx`.
