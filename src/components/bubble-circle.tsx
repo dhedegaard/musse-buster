@@ -44,7 +44,7 @@ const circleVariants = cva(styles['Circle'], {
 interface CircleVariants extends Required<VariantProps<typeof circleVariants>> {}
 
 export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
-  const currentY = useMemo(() => BOARD_HEIGHT - bubble.y - 1, [bubble.y])
+  const currentY = BOARD_HEIGHT - bubble.y - 1
   const [deferredY, setDeferredY] = useState(currentY)
 
   useEffect(() => {
