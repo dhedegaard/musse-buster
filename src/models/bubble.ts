@@ -7,8 +7,7 @@ export type BubbleType = z.infer<typeof BubbleType>
 
 export const Bubble = z.object({
   key: z.string().check(z.minLength(1)),
-  // NOTE: Later, we may remove the optionality here, but for now we want to translate missing values.
-  type: z.prefault(z.optional(BubbleType), 'normal'),
+  type: BubbleType,
   x: z.int().check(z.nonnegative(), z.maximum(BOARD_WIDTH - 1)),
   y: z.int().check(z.nonnegative(), z.maximum(BOARD_HEIGHT - 1)),
   color: Color,
