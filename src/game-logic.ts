@@ -3,6 +3,10 @@ import { BOARD_HEIGHT } from './models/consts'
 
 export const INITIAL_TICK_RATE = 5200
 
+export function calcGroupScore(n: number): number {
+  return n + (n - 2) ** 2
+}
+
 const posKey = (x: number, y: number): string => `${x.toString()},${y.toString()}`
 
 export function isGameOver(bubbles: readonly Bubble[]): boolean {

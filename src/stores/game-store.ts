@@ -4,6 +4,7 @@ import {
   INITIAL_TICK_RATE,
   applyBombClick,
   applyGravity as applyGravityLogic,
+  calcGroupScore,
   calcTickRate,
   findFloodFillGroup,
   isGameOver,
@@ -108,7 +109,9 @@ export const useGameStore = create<GameStore>()(
                   bubbles: nextBubbles,
                   currentGame: Game.parse({
                     ...state.currentGame,
-                    score: state.currentGame.score + (state.bubbles.length - nextBubbles.length),
+                    score:
+                      state.currentGame.score +
+                      calcGroupScore(state.bubbles.length - nextBubbles.length),
                   } satisfies Game),
                 }
               }
@@ -121,7 +124,7 @@ export const useGameStore = create<GameStore>()(
                   bubbles: state.bubbles.filter((bubble) => !group.has(bubble.key)),
                   currentGame: Game.parse({
                     ...state.currentGame,
-                    score: state.currentGame.score + group.size,
+                    score: state.currentGame.score + calcGroupScore(group.size),
                   } satisfies Game),
                 }
               }
