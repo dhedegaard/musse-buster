@@ -24,27 +24,27 @@
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "zod": "^4.4.3",
-    "zustand": "^5.0.13"
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.3.0",
+    "@tailwindcss/postcss": "^4.3.1",
     "@tsconfig/next": "^2.0.6",
     "@tsconfig/strictest": "^2.0.8",
-    "@types/node": "25.8.0",
+    "@types/node": "26.0.0",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
     "babel-plugin-react-compiler": "^1.0.0",
-    "daisyui": "^5.5.19",
+    "daisyui": "^5.5.23",
     "eslint": "^9.39.4",
     "eslint-config-next": "16.2.9",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-compiler": "^19.1.0-rc.2",
-    "postcss": "^8.5.14",
-    "prettier": "^3.8.3",
+    "postcss": "^8.5.15",
+    "prettier": "^3.8.4",
     "prettier-plugin-tailwindcss": "^0.8.0",
-    "tailwindcss": "^4.3.0",
+    "tailwindcss": "^4.3.1",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.59.3"
+    "typescript-eslint": "^8.62.0"
   },
   "overrides": {
     "@types/react": "19.2.17",
