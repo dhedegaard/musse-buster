@@ -13,6 +13,8 @@ npm run lint        # ESLint (Next.js + TypeScript type-aware rules)
 ```
 
 No test suite exists. Verify changes via `npm run lint` and `npm run build`.
+No `typecheck` script; use `npx tsc --noEmit`. To smoke-test a build, serve `out/` (`npx serve out -l <port>`) and drive it in a browser: `n` starts a game, `↑` adds a row.
+Bundle audit: `npx next analyze --output --snapshot <name>` then `npx next analyze export --snapshot <name> | gzip > <file>`. The client app chunk is triggered by `board.tsx`; zod is the largest app-owned dependency.
 
 ## Architecture
 
@@ -27,7 +29,7 @@ Pure, deterministic functions with no side effects — the store delegates all c
 - `isGameOver(bubbles)` — true if any bubble's `y + 1 >= BOARD_HEIGHT`
 
 ### State (`src/stores/game-store.ts`)
-Single Zustand store (`useGameStore`) with `devtools` + `persist` middleware (localStorage key: `musse-buster-v0`). Store actions orchestrate state mutations and delegate computation to `game-logic.ts`. State machine: `'main-menu' | 'running' | 'paused' | 'game-over'`.
+Single Zustand store (`useGameStore`) with `devtools` + `persist` middleware (localStorage key: `musse-buster-v0`). Persisted state is rehydrated without schema validation (no `merge`/`migrate`). Store actions orchestrate state mutations and delegate computation to `game-logic.ts`. State machine: `'main-menu' | 'running' | 'paused' | 'game-over'`.
 
 Key actions:
 - `addBubbleLine()` — spawns a row at y=0, pushes existing bubbles up, checks game-over, adjusts tick rate
@@ -37,7 +39,7 @@ Key actions:
 - `togglePause()` — preserves elapsed tick delta so resuming continues mid-interval
 
 ### Models (`src/models/`)
-Zod schemas (imported from `zod/mini`) define both schema and TypeScript interface via `interface Foo extends z.infer<typeof Foo> {}`. Always use `.parse()` to construct objects — Zod applies defaults (e.g., `type: 'normal'` is `z.prefault`). Board is 10×14 (`BOARD_WIDTH` × `BOARD_HEIGHT`); y=0 is the bottom row — `BubbleCircle` flips to SVG space via `BOARD_HEIGHT - y - 1`. The `Bubble.animation` field drives CSS animations and must be set explicitly: `'spawning'` (new row), `'pushed-up'` (existing bubble shifted up), `'fall'` (gravity drop).
+Zod schemas (imported from `zod/mini`) define both schema and TypeScript interface via `interface Foo extends z.infer<typeof Foo> {}`. Always use `.parse()` to construct objects (no field has a default; pass every field). Schemas that get `.parse()`d (`Bubble`, `Game`) are wrapped in `z.compile(...)` for a much faster parse, at about 9 KB gz of bundle cost; this needs zod ≥ 4.5, so keep the `^4.6.7` floor. `Color`/`BubbleType` are only checked inside `Bubble` and need no compile. Board is 10×14 (`BOARD_WIDTH` × `BOARD_HEIGHT`); y=0 is the bottom row — `BubbleCircle` flips to SVG space via `BOARD_HEIGHT - y - 1`. The `Bubble.animation` field drives CSS animations and must be set explicitly: `'spawning'` (new row), `'pushed-up'` (existing bubble shifted up), `'fall'` (gravity drop).
 
 ### UI (`src/app/`, `src/components/`)
 - `board.tsx` — client component, `requestAnimationFrame` game loop, auto-pauses on tab hide, renders SVG grid
