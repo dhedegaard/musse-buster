@@ -3,6 +3,9 @@
 @plugin "daisyui" {
   themes: light --default;
   logs: false;
+  /* Tailwind scans every repo file, so words like "stack"/"tab" in docs pulled in unused components.
+     Only `button` is used; the rest are daisyUI's base styles (page text color etc.). */
+  include: button, properties, rootcolor, rootscrollgutter, rootscrolllock, scrollbar, svg;
 }
 
 @theme {
