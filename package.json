@@ -12,7 +12,9 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "typecheck": "next typegen && tsc --noEmit",
+    "format:check": "prettier --check ."
   },
   "keywords": [],
   "author": "Dennis Hedegaard <dennis@dhedegaard.dk>",

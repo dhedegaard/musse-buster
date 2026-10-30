@@ -10,10 +10,11 @@ npm run dev         # Dev server with Turbopack
 npm run build       # Production build (static export)
 npm run start       # Serve production build
 npm run lint        # ESLint (Next.js + TypeScript type-aware rules)
+npm run typecheck   # next typegen + tsc --noEmit
+npm run format:check # Prettier
 ```
 
-No test suite exists. Verify changes via `npm run lint` and `npm run build`.
-No `typecheck` script; use `npx tsc --noEmit`. To smoke-test a build, serve `out/` (`npx serve out -l <port>`) and drive it in a browser: `n` starts a game, `↑` adds a row.
+No test suite exists. Verify changes via `npm run lint`, `typecheck`, `format:check` and `build` (CI runs all four). To smoke-test a build, serve `out/` (`npx serve out -l <port>`) and drive it in a browser: `n` starts a game, `↑` adds a row.
 For before/after visual checks, seed `Math.random`/`crypto.randomUUID` and fake the clock, then diff computed styles as well as pixels. Bubble anti-aliasing and the progress bar differ between runs of the same build.
 Bundle audit: `npx next analyze --output --snapshot <name>` then `npx next analyze export --snapshot <name> | gzip > <file>`. The client app chunk is triggered by `board.tsx`; zod is the largest app-owned dependency.
 
@@ -63,4 +64,4 @@ Zod schemas (imported from `zod/mini`) define both schema and TypeScript interfa
 - **Zod imports**: Use `import * as z from 'zod/mini'` (wildcard import for correct tree-shaking).
 - **Module-level constants**: Hoist stable event handlers and static values to module scope rather than using `useCallback(fn, [])` inside components. See `preventContextMenu`, `handleKeyDown`, `handleVisibilityChange` in `board.tsx`.
 - **daisyUI**: `styles.css` limits daisyUI via `include:` (internal names from `node_modules/daisyui/components/`, e.g. `button` not `btn`, plus the base styles `properties`, `rootcolor`, …). A new daisyUI component must be added there; `better-tailwindcss/no-unknown-classes` fails lint if it isn't.
-- **Formatting**: Prettier with `prettier-plugin-tailwindcss`. 100-char line width, 2-space indent, `trailingComma: "es5"`, single quotes (CSS/YAML too). Not enforced by lint/CI; run `npx prettier --check .`.
+- **Formatting**: Prettier with `prettier-plugin-tailwindcss`. 100-char line width, 2-space indent, `trailingComma: "es5"`, single quotes (CSS/YAML too).
