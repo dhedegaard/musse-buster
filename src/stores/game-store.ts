@@ -33,8 +33,16 @@ interface GameStore {
   togglePause: () => void
 }
 
+const identity = <S>(initializer: S): S => initializer
+
+// Identity in production so the devtools middleware is tree-shaken out of the bundle. Typed as
+// identity in dev too, so devtools-only API (`api.devtools`, `setState` action names) can't be
+// used and then crash in production.
+const withDevtools =
+  process.env.NODE_ENV === 'production' ? identity : (devtools as typeof identity)
+
 export const useGameStore = create<GameStore>()(
-  devtools(
+  withDevtools(
     persist<GameStore>(
       (set, get) => ({
         prevTickTime: -1,
