@@ -16,6 +16,7 @@ npm run format:check # Prettier
 
 No test suite exists. Verify changes via `npm run lint`, `typecheck`, `format:check` and `build` (CI runs all four). To smoke-test a build, serve `out/` (`npx serve out -l <port>`) and drive it in a browser: `n` starts a game, `↑` adds a row.
 For before/after visual checks, seed `Math.random`/`crypto.randomUUID` and fake the clock, then diff computed styles as well as pixels. Bubble anti-aliasing and the progress bar differ between runs of the same build.
+Use real key presses (Playwright `keyboard.press`) when testing input: script-dispatched `KeyboardEvent`s never activate a focused button.
 Bundle audit: `npx next analyze --output --snapshot <name>` then `npx next analyze export --snapshot <name> | gzip > <file>`. The client app chunk is triggered by `board.tsx`; zod is the largest app-owned dependency.
 
 ## Architecture
@@ -53,6 +54,8 @@ Zod schemas (imported from `zod/mini`) define both schema and TypeScript interfa
 - `board.tsx` — client component, `requestAnimationFrame` game loop, auto-pauses on tab hide, renders SVG grid
   - In `running`/`paused`: `p`/space=togglePause, `n`=reset, `↑`=debug add line
   - In `game-over`/`main-menu`: `n`/space=reset
+  - The keydown listener is deliberately non-passive: it calls `preventDefault()` on `CLAIMED_KEYS` so space doesn't also activate a focused button, and it ignores `event.repeat`.
+- Layout is desktop-only: the board is `w-[60vh]` and the score/button panels sit outside it (`right-full`/`left-full`), so on a phone the board is clipped and the panels are off-screen.
 - `bottom-bar.tsx` — tick-progress bar driven by `useGameStore.subscribe()` + Web Animations API directly, bypassing React's render cycle entirely; no re-renders on tick updates
 - `bubble-circle.tsx` — uses a `deferredY` / `useEffect` one-frame delay so the SVG `<circle>` transitions from the old position to the new one (enabling CSS `transition` for `'fall'` animation); `calcTransitionDuration` scales by number of rows fallen; uses `cva` (class-variance-authority) for color/type variants
 - All component selectors combine multiple fields into a single `useGameStore(useShallow((state) => ({ ... })))` call — never multiple separate `useGameStore` calls per component
