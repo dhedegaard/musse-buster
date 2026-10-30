@@ -8,7 +8,7 @@ export const CurrentScore = memo(function CurrentScore() {
 
   return (
     <div className="flex flex-col items-center gap-2 rounded-xl border border-solid border-slate-700 p-4">
-      <div className="whitespace-nowrap text-xl font-semibold">Current score:</div>
+      <div className="text-xl font-semibold whitespace-nowrap">Current score:</div>
       <div className="text-3xl font-bold">{score.toLocaleString()}</div>
     </div>
   )

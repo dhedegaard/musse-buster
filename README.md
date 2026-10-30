@@ -17,8 +17,8 @@ npm run lint    # ESLint
 
 ## Controls
 
-| Key | Action |
-|-----|--------|
+| Key          | Action                       |
+| ------------ | ---------------------------- |
 | Click bubble | Remove group (≥3 same color) |
-| `p` / Space | Pause / resume |
-| `n` | New game |
+| `p` / Space  | Pause / resume               |
+| `n`          | New game                     |

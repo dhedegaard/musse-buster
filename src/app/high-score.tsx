@@ -37,7 +37,7 @@ export const HighScore = memo(function HighScore() {
       </div>
       {allGames.map((game, index) => (
         <div key={game.key} className="flex items-center justify-between">
-          <div className="text-sm text-base-content">{index + 1}.</div>
+          <div className="text-base-content text-sm">{index + 1}.</div>
           <div className={clsx(game.type === 'current' && 'font-semibold text-blue-700 underline')}>
             {game.score.toLocaleString()}
           </div>

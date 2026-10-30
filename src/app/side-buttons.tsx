@@ -19,7 +19,7 @@ export const SideButtons = memo(function SideButtons() {
   }
 
   return (
-    <div className="absolute left-full top-0 m-4 flex w-full flex-col items-start gap-2">
+    <div className="absolute top-0 left-full m-4 flex w-full flex-col items-start gap-2">
       <button
         type="button"
         onClick={handleClickTogglePause}

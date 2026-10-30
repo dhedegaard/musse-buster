@@ -21,7 +21,9 @@ Bundle audit: `npx next analyze --output --snapshot <name>` then `npx next analy
 **Musse Buster** is a browser-based bubble-buster game (Next.js 16 App Router, React 19, static export via `output: 'export'`).
 
 ### Game Logic (`src/game-logic.ts`)
+
 Pure, deterministic functions with no side effects — the store delegates all computation here:
+
 - `findFloodFillGroup(bubbles, key)` — DFS flood-fill (stack-based); returns `Set<string>` of keys (empty if < 3 connected same-color normal bubbles)
 - `applyBombClick(bubbles, bomb)` — removes the bomb + all normal bubbles of the same color
 - `applyGravity(bubbles)` — iteratively drops bubbles into empty spaces below; returns new array
@@ -29,9 +31,11 @@ Pure, deterministic functions with no side effects — the store delegates all c
 - `isGameOver(bubbles)` — true if any bubble's `y + 1 >= BOARD_HEIGHT`
 
 ### State (`src/stores/game-store.ts`)
+
 Single Zustand store (`useGameStore`) with `devtools` + `persist` middleware (localStorage key: `musse-buster-v0`). Persisted state is rehydrated without schema validation (no `merge`/`migrate`). Store actions orchestrate state mutations and delegate computation to `game-logic.ts`. State machine: `'main-menu' | 'running' | 'paused' | 'game-over'`.
 
 Key actions:
+
 - `addBubbleLine()` — spawns a row at y=0, pushes existing bubbles up, checks game-over, adjusts tick rate
 - `clickBubble(key)` — flood-fill removal for normal bubbles (≥3 required), or bomb removes itself + all same-color normal bubbles; calls `applyGravity()` if any bubble was removed
 - `applyGravity()` — must be called manually after any removal (not automatic)
@@ -39,9 +43,11 @@ Key actions:
 - `togglePause()` — preserves elapsed tick delta so resuming continues mid-interval
 
 ### Models (`src/models/`)
+
 Zod schemas (imported from `zod/mini`) define both schema and TypeScript interface via `interface Foo extends z.infer<typeof Foo> {}`. Always use `.parse()` to construct objects (no field has a default; pass every field). Schemas that get `.parse()`d (`Bubble`, `Game`) are wrapped in `z.compile(...)` for a much faster parse, at about 9 KB gz of bundle cost; this needs zod ≥ 4.5, so keep the `^4.6.7` floor. `Color`/`BubbleType` are only checked inside `Bubble` and need no compile. Board is 10×14 (`BOARD_WIDTH` × `BOARD_HEIGHT`); y=0 is the bottom row — `BubbleCircle` flips to SVG space via `BOARD_HEIGHT - y - 1`. The `Bubble.animation` field drives CSS animations and must be set explicitly: `'spawning'` (new row), `'pushed-up'` (existing bubble shifted up), `'fall'` (gravity drop).
 
 ### UI (`src/app/`, `src/components/`)
+
 - `board.tsx` — client component, `requestAnimationFrame` game loop, auto-pauses on tab hide, renders SVG grid
   - In `running`/`paused`: `p`/space=togglePause, `n`=reset, `↑`=debug add line
   - In `game-over`/`main-menu`: `n`/space=reset
@@ -50,6 +56,7 @@ Zod schemas (imported from `zod/mini`) define both schema and TypeScript interfa
 - All component selectors combine multiple fields into a single `useGameStore(useShallow((state) => ({ ... })))` call — never multiple separate `useGameStore` calls per component
 
 ### Patterns
+
 - **Exhaustive switches**: Use `switch` with `default: assertNever(value)` for all union type branching (game state, bubble type). `assertNever` (from `src/utils.ts`) accepts `never` and throws a `TypeError` — this enforces exhaustive handling at compile time and runtime.
 - **Strict TypeScript**: Config extends `@tsconfig/strictest`. Strict boolean expressions enforced — conditionals must be explicit booleans.
 - **Zod imports**: Use `import * as z from 'zod/mini'` (wildcard import for correct tree-shaking).

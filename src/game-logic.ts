@@ -30,7 +30,12 @@ export function findFloodFillGroup(bubbles: readonly Bubble[], key: string): Set
     const bubble = stack.pop()
     if (bubble == null || seenKeys.has(bubble.key)) continue
     seenKeys.add(bubble.key)
-    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]] as const) {
+    for (const [dx, dy] of [
+      [1, 0],
+      [-1, 0],
+      [0, 1],
+      [0, -1],
+    ] as const) {
       const neighbor = byPos.get(posKey(bubble.x + dx, bubble.y + dy))
       if (
         neighbor != null &&
