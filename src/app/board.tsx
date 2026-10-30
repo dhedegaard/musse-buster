@@ -16,8 +16,18 @@ const preventContextMenu: MouseEventHandler<SVGElement> = (event) => {
   event.preventDefault()
 }
 
+// Default prevented so space doesn't also activate a focused button (needs a non-passive listener).
+// Done before the repeat check, since a held key's repeats could otherwise still activate it.
+const CLAIMED_KEYS = new Set([' ', 'p', 'n'])
+
 const handleKeyDown = (event: KeyboardEvent) => {
   if (event.metaKey || event.ctrlKey) {
+    return
+  }
+  if (CLAIMED_KEYS.has(event.key)) {
+    event.preventDefault()
+  }
+  if (event.repeat) {
     return
   }
   const state = useGameStore.getState()
@@ -142,7 +152,6 @@ export const Board = memo(function Board() {
     const abortController = new AbortController()
     globalThis.document.addEventListener('keydown', handleKeyDown, {
       signal: abortController.signal,
-      passive: true,
     })
     return () => {
       abortController.abort()
