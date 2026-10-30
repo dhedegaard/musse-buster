@@ -1,6 +1,6 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
-@plugin "daisyui" {
+@plugin 'daisyui' {
   themes: light --default;
   logs: false;
   /* Tailwind scans every repo file, so words like "stack"/"tab" in docs pulled in unused components.
