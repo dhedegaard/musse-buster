@@ -1,14 +1,12 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Commands
 
 ```bash
 npm ci              # Install dependencies (always use ci, not install)
 npm run dev         # Dev server with Turbopack
 npm run build       # Production build (static export)
-npm run start       # Serve production build
+npx serve out       # Serve the production build (`npm run start` fails: next start doesn't support output: 'export')
 npm run lint        # ESLint (Next.js + TypeScript type-aware rules)
 npm run typecheck   # next typegen + tsc --noEmit
 npm run format:check # Prettier
@@ -27,6 +25,7 @@ Bundle audit: `npx next analyze --output --snapshot <name>` then `npx next analy
 
 Pure, deterministic functions with no side effects — the store delegates all computation here:
 
+- `calcGroupScore(n)` — points for clearing n bubbles: `n + (n - 2)²`
 - `findFloodFillGroup(bubbles, key)` — DFS flood-fill (stack-based); returns `Set<string>` of keys (empty if < 3 connected same-color normal bubbles)
 - `applyBombClick(bubbles, bomb)` — removes the bomb + all normal bubbles of the same color
 - `applyGravity(bubbles)` — iteratively drops bubbles into empty spaces below; returns new array
@@ -39,7 +38,7 @@ Single Zustand store (`useGameStore`) with `persist` middleware (localStorage ke
 
 Key actions:
 
-- `addBubbleLine()` — spawns a row at y=0, pushes existing bubbles up, checks game-over, adjusts tick rate
+- `addBubbleLine()` — spawns a row at y=0 (each bubble is a bomb with 1.5% chance), pushes existing bubbles up, checks game-over, adjusts tick rate
 - `clickBubble(key)` — flood-fill removal for normal bubbles (≥3 required), or bomb removes itself + all same-color normal bubbles; calls `applyGravity()` if any bubble was removed
 - `applyGravity()` — must be called manually after any removal (not automatic)
 - `reset()` — new game, archives old game to `oldGames`, spawns 4 initial lines
@@ -63,7 +62,7 @@ Zod schemas (imported from `zod/mini`) define both schema and TypeScript interfa
 ### Patterns
 
 - **Exhaustive switches**: Use `switch` with `default: assertNever(value)` for all union type branching (game state, bubble type). `assertNever` (from `src/utils.ts`) accepts `never` and throws a `TypeError` — this enforces exhaustive handling at compile time and runtime.
-- **Strict TypeScript**: Config extends `@tsconfig/strictest`. Strict boolean expressions enforced — conditionals must be explicit booleans.
+- **Strict TypeScript**: Config extends `@tsconfig/strictest`; ESLint uses `typescript-eslint` `strictTypeChecked`. The code style is explicit null checks (`x == null`), but no lint rule enforces strict boolean expressions.
 - **Zod imports**: Use `import * as z from 'zod/mini'` (wildcard import for correct tree-shaking).
 - **Module-level constants**: Hoist stable event handlers and static values to module scope rather than using `useCallback(fn, [])` inside components. See `preventContextMenu`, `handleKeyDown`, `handleVisibilityChange` in `board.tsx`.
 - **daisyUI**: `styles.css` limits daisyUI via `include:` (internal names from `node_modules/daisyui/components/`, e.g. `button` not `btn`, plus the base styles `properties`, `rootcolor`, …). A new daisyUI component must be added there; `better-tailwindcss/no-unknown-classes` fails lint if it isn't.
