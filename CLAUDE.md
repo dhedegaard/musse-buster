@@ -4,12 +4,7 @@
 
 ```bash
 npm ci              # Install dependencies (always use ci, not install)
-npm run dev         # Dev server with Turbopack
-npm run build       # Production build (static export)
 npx serve out       # Serve the production build (`npm run start` fails: next start doesn't support output: 'export')
-npm run lint        # ESLint (Next.js + TypeScript type-aware rules)
-npm run typecheck   # next typegen + tsc --noEmit
-npm run format:check # Prettier
 ```
 
 No test suite exists. Verify changes via `npm run lint`, `typecheck`, `format:check` and `build` (CI runs all four). To smoke-test a build, serve `out/` (`npx serve out -l <port>`) and drive it in a browser: `n` starts a game, `↑` adds a row.
@@ -21,27 +16,13 @@ Bundle audit: `npx next analyze --output --snapshot <name>` then `npx next analy
 
 **Musse Buster** is a browser-based bubble-buster game (Next.js 16 App Router, React 19, static export via `output: 'export'`).
 
-### Game Logic (`src/game-logic.ts`)
-
-Pure, deterministic functions with no side effects — the store delegates all computation here:
-
-- `calcGroupScore(n)` — points for clearing n bubbles: `n + (n - 2)²`
-- `findFloodFillGroup(bubbles, key)` — DFS flood-fill (stack-based); returns `Set<string>` of keys (empty if < 3 connected same-color normal bubbles)
-- `applyBombClick(bubbles, bomb)` — removes the bomb + all normal bubbles of the same color
-- `applyGravity(bubbles)` — iteratively drops bubbles into empty spaces below; returns new array
-- `calcTickRate(score)` — tick rate starts at 5200ms, decreases by 3ms per point, floor 1500ms
-- `isGameOver(bubbles)` — true if any bubble's `y + 1 >= BOARD_HEIGHT`
-
 ### State (`src/stores/game-store.ts`)
 
-Single Zustand store (`useGameStore`) with `persist` middleware (localStorage key: `musse-buster-v0`), plus `devtools` in dev only via `withDevtools`, which is typed as identity so devtools-only API (`api.devtools`, `setState` action names) can't compile. zustand would otherwise enable devtools in production, since Next doesn't set `import.meta.env.MODE`. Persisted state is rehydrated without schema validation (no `merge`/`migrate`). Store actions orchestrate state mutations and delegate computation to `game-logic.ts`. State machine: `'main-menu' | 'running' | 'paused' | 'game-over'`.
+Single Zustand store (`useGameStore`) with `persist` middleware (localStorage key: `musse-buster-v0`), plus `devtools` in dev only via `withDevtools`, which is typed as identity so devtools-only API (`api.devtools`, `setState` action names) can't compile. zustand would otherwise enable devtools in production, since Next doesn't set `import.meta.env.MODE`. Persisted state is rehydrated without schema validation (no `merge`/`migrate`). Store actions orchestrate state mutations and delegate computation to `src/game-logic.ts` (pure, deterministic, no side effects). State machine: `'main-menu' | 'running' | 'paused' | 'game-over'`.
 
 Key actions:
 
-- `addBubbleLine()` — spawns a row at y=0 (each bubble is a bomb with 1.5% chance), pushes existing bubbles up, checks game-over, adjusts tick rate
-- `clickBubble(key)` — flood-fill removal for normal bubbles (≥3 required), or bomb removes itself + all same-color normal bubbles; calls `applyGravity()` if any bubble was removed
 - `applyGravity()` — must be called manually after any removal (not automatic)
-- `reset()` — new game, archives old game to `oldGames`, spawns 4 initial lines
 - `togglePause()` — preserves elapsed tick delta so resuming continues mid-interval
 
 ### Models (`src/models/`)
@@ -65,5 +46,5 @@ Zod schemas (imported from `zod/mini`) define both schema and TypeScript interfa
 - **Strict TypeScript**: Config extends `@tsconfig/strictest`; ESLint uses `typescript-eslint` `strictTypeChecked`. The code style is explicit null checks (`x == null`), but no lint rule enforces strict boolean expressions.
 - **Zod imports**: Use `import * as z from 'zod/mini'` (wildcard import for correct tree-shaking).
 - **Module-level constants**: Hoist stable event handlers and static values to module scope rather than using `useCallback(fn, [])` inside components. See `preventContextMenu`, `handleKeyDown`, `handleVisibilityChange` in `board.tsx`.
-- **daisyUI**: `styles.css` limits daisyUI via `include:` (internal names from `node_modules/daisyui/components/`, e.g. `button` not `btn`, plus the base styles `properties`, `rootcolor`, …). A new daisyUI component must be added there; `better-tailwindcss/no-unknown-classes` fails lint if it isn't.
+- **daisyUI**: `src/globals/styles.css` limits daisyUI via `include:` (internal names from `node_modules/daisyui/components/`, e.g. `button` not `btn`, plus the base styles `properties`, `rootcolor`, …). A new daisyUI component must be added there; `better-tailwindcss/no-unknown-classes` fails lint if it isn't.
 - **Formatting**: Prettier with `prettier-plugin-tailwindcss`. 100-char line width, 2-space indent, `trailingComma: "es5"`, single quotes (CSS/YAML too).
