@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
+import * as z from 'zod/mini'
 import {
   INITIAL_TICK_RATE,
   applyBombClick,
@@ -23,6 +24,8 @@ interface GameStore {
   gameState: 'main-menu' | 'running' | 'game-over' | 'paused'
   currentGame: Game
   oldGames: readonly Game[]
+  // Games ever moved into `oldGames`, which is capped.
+  totalGames: number
 
   bubbles: readonly Bubble[]
 
@@ -32,6 +35,15 @@ interface GameStore {
   reset: () => void
   togglePause: () => void
 }
+
+const MAX_OLD_GAMES = 1000
+
+// Saves from before `totalGames` existed lack it, but their `oldGames` was still uncapped, so its
+// scored games are the exact count (0-score games don't count, see reset()).
+const PersistedGameCount = z.object({
+  oldGames: z.array(z.object({ score: z.number() })),
+  totalGames: z.optional(z.int()),
+})
 
 const identity = <S>(initializer: S): S => initializer
 
@@ -57,6 +69,7 @@ export const useGameStore = create<GameStore>()(
           startedAt: new Date().toISOString(),
         } satisfies Game,
         oldGames: [],
+        totalGames: 0,
 
         addBubbleLine() {
           const nextBubbles = Array.from<unknown>({ length: BOARD_WIDTH }).map<Bubble>((_, x) => {
@@ -150,19 +163,29 @@ export const useGameStore = create<GameStore>()(
         },
         reset() {
           const now = new Date()
-          set((state) => ({
-            prevTickTime: now.getTime(),
-            nextTickTime: now.getTime() + INITIAL_TICK_RATE,
-            tickRate: INITIAL_TICK_RATE,
-            bubbles: [],
-            gameState: 'running',
-            currentGame: Game.parse({
-              key: crypto.randomUUID(),
-              score: 0,
-              startedAt: now.toISOString(),
-            } satisfies Game),
-            oldGames: [state.currentGame, ...state.oldGames],
-          }))
+          set((state) => {
+            // A 0-score game (never started, or abandoned before scoring) doesn't count as played:
+            // it isn't kept in `oldGames` or added to `totalGames`.
+            const played = state.currentGame.score > 0 ? [state.currentGame] : []
+            return {
+              prevTickTime: now.getTime(),
+              nextTickTime: now.getTime() + INITIAL_TICK_RATE,
+              tickRate: INITIAL_TICK_RATE,
+              bubbles: [],
+              gameState: 'running',
+              currentGame: Game.parse({
+                key: crypto.randomUUID(),
+                score: 0,
+                startedAt: now.toISOString(),
+              } satisfies Game),
+              // Keep the best scores rather than the latest, so a cap can't evict a highscore.
+              // Also drops 0-score games stored before they stopped counting.
+              oldGames: [...played, ...state.oldGames.filter((game) => game.score > 0)]
+                .toSorted((a, b) => b.score - a.score)
+                .slice(0, MAX_OLD_GAMES),
+              totalGames: state.totalGames + played.length,
+            }
+          })
           get().addBubbleLine()
           get().addBubbleLine()
           get().addBubbleLine()
@@ -198,7 +221,32 @@ export const useGameStore = create<GameStore>()(
           })
         },
       }),
-      { name: 'musse-buster-v0' }
+      {
+        name: 'musse-buster-v0',
+        merge(persistedState, currentState) {
+          // Same shallow merge as the default; persisted state is otherwise not validated.
+          const merged = {
+            ...currentState,
+            ...(persistedState as Partial<GameStore>),
+          } satisfies GameStore
+          const counts = PersistedGameCount.safeParse(persistedState, { reportInput: true })
+          if (!counts.success) {
+            // Nothing is persisted on a first visit; only log a save that exists but can't be read.
+            if (persistedState != null) {
+              // eslint-disable-next-line no-console -- otherwise a bad save silently resets the count
+              console.error('Could not read the game count from the save', counts.error)
+            }
+            return merged
+          }
+          // A rolled-back build keeps `totalGames` but never adds to it, while it keeps adding
+          // games to an uncapped `oldGames`. Taking the larger of the two catches up on those games.
+          const scoredGames = counts.data.oldGames.filter((game) => game.score > 0).length
+          return {
+            ...merged,
+            totalGames: Math.max(counts.data.totalGames ?? 0, scoredGames),
+          } satisfies GameStore
+        },
+      }
     )
   )
 )

@@ -10,6 +10,7 @@ npx serve out       # Serve the production build (`npm run start` fails: next st
 No test suite exists. Verify changes via `npm run lint`, `typecheck`, `format:check` and `build` (CI runs all four). To smoke-test a build, serve `out/` (`npx serve out -l <port>`) and drive it in a browser: `n` starts a game, `↑` adds a row.
 For before/after visual checks, seed `Math.random`/`crypto.randomUUID` and fake the clock, then diff computed styles as well as pixels. Bubble anti-aliasing and the progress bar differ between runs of the same build.
 Use real key presses (Playwright `keyboard.press`) when testing input: script-dispatched `KeyboardEvent`s never activate a focused button.
+To test persistence, write `{"state": {…}, "version": 0}` to localStorage key `musse-buster-v0`, reload, then press `n` and read the key back. Fields left out keep their initial values.
 Bundle audit: `npx next analyze --output --snapshot <name>` then `npx next analyze export --snapshot <name> | gzip > <file>`. The client app chunk is triggered by `board.tsx`; zod is the largest app-owned dependency.
 
 ## Architecture
@@ -18,7 +19,9 @@ Bundle audit: `npx next analyze --output --snapshot <name>` then `npx next analy
 
 ### State (`src/stores/game-store.ts`)
 
-Single Zustand store (`useGameStore`) with `persist` middleware (localStorage key: `musse-buster-v0`), plus `devtools` in dev only via `withDevtools`, which is typed as identity so devtools-only API (`api.devtools`, `setState` action names) can't compile. zustand would otherwise enable devtools in production, since Next doesn't set `import.meta.env.MODE`. Persisted state is rehydrated without schema validation (no `merge`/`migrate`). Store actions orchestrate state mutations and delegate computation to `src/game-logic.ts` (pure, deterministic, no side effects). State machine: `'main-menu' | 'running' | 'paused' | 'game-over'`.
+Single Zustand store (`useGameStore`) with `persist` middleware (localStorage key: `musse-buster-v0`), plus `devtools` in dev only via `withDevtools`, which is typed as identity so devtools-only API (`api.devtools`, `setState` action names) can't compile. zustand would otherwise enable devtools in production, since Next doesn't set `import.meta.env.MODE`. Persisted state is rehydrated without schema validation; a custom `merge` only derives `totalGames`, for saves from before it existed and after a rollback. Don't add a persist `version`: a rolled-back build seeing a newer version discards the whole save. Store actions orchestrate state mutations and delegate computation to `src/game-logic.ts` (pure, deterministic, no side effects). State machine: `'main-menu' | 'running' | 'paused' | 'game-over'`.
+
+`oldGames` holds the best 1000 scored games, not the latest. 0-score games are never saved or counted, and `totalGames` is a separate, uncapped count of scored games. zustand also calls `merge` with `undefined` on a first visit. A save whose `oldGames` isn't an array makes the page fail to load, because stored state isn't validated. This predates the `merge`.
 
 Key actions:
 
@@ -43,6 +46,7 @@ Zod schemas (imported from `zod/mini`) define both schema and TypeScript interfa
 ### Patterns
 
 - **Exhaustive switches**: Use `switch` with `default: assertNever(value)` for all union type branching (game state, bubble type). `assertNever` (from `src/utils.ts`) accepts `never` and throws a `TypeError` — this enforces exhaustive handling at compile time and runtime.
+- **Logging**: `no-console` is `error`. A deliberate log needs `// eslint-disable-next-line no-console -- <reason>`.
 - **Strict TypeScript**: Config extends `@tsconfig/strictest`; ESLint uses `typescript-eslint` `strictTypeChecked`. The code style is explicit null checks (`x == null`), but no lint rule enforces strict boolean expressions.
 - **Zod imports**: Use `import * as z from 'zod/mini'` (wildcard import for correct tree-shaking).
 - **Module-level constants**: Hoist stable event handlers and static values to module scope rather than using `useCallback(fn, [])` inside components. See `preventContextMenu`, `handleKeyDown`, `handleVisibilityChange` in `board.tsx`.
