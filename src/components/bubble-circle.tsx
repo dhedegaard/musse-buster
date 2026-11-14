@@ -97,9 +97,6 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
         className="cursor-pointer opacity-0"
         onMouseDown={handleMouseDown}
         onContextMenu={handleMouseDown}
-        role="button"
-        tabIndex={0}
-        aria-label="Bubble"
       />
 
       <circle
