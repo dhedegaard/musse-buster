@@ -9,10 +9,11 @@ interface GameRow {
   type: 'current' | 'old'
 }
 export const HighScore = memo(function HighScore() {
-  const { currentScore, oldGames } = useGameStore(
+  const { currentScore, oldGames, totalGames } = useGameStore(
     useShallow((state) => ({
       currentScore: state.currentGame.score,
       oldGames: state.oldGames,
+      totalGames: state.totalGames,
     }))
   )
   const allGames = useMemo<readonly GameRow[]>(
@@ -43,6 +44,9 @@ export const HighScore = memo(function HighScore() {
           </div>
         </div>
       ))}
+      <div className="mt-4 border-t border-solid border-t-slate-700 pt-2 text-sm whitespace-nowrap">
+        Games played: {totalGames.toLocaleString()}
+      </div>
     </div>
   )
 })
