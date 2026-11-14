@@ -122,7 +122,7 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
       {bubble.type === 'bomb' && (
         <text
           x={bubble.x + 0.5}
-          y={deferredY + 0.5}
+          y={0.5}
           textAnchor="middle"
           dominantBaseline="middle"
           fontSize="0.6"
@@ -131,7 +131,9 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
             'pointer-events-none select-none group-data-paused/board:invisible',
             bubble.animation === 'spawning' && 'animate-spawn'
           )}
-          style={styleObject}
+          // Moved with `translate`, not `y`: <text> has no animatable position property like `cy`,
+          // so this is what lets it fall along with its circle.
+          style={{ ...styleObject, translate: `0 ${deferredY.toString()}px` }}
         >
           💣
         </text>
