@@ -128,7 +128,7 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
           fontSize="0.6"
           className={clsx(
             styles['Circle'],
-            'pointer-events-none select-none group-data-paused/board:hidden',
+            'pointer-events-none select-none group-data-paused/board:invisible',
             bubble.animation === 'spawning' && 'animate-spawn'
           )}
           style={styleObject}
