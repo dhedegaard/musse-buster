@@ -1,6 +1,5 @@
 'use client'
 
-import clsx from 'clsx'
 import { type MouseEventHandler, memo, useEffect } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { BubbleCircle } from '../components/bubble-circle'
@@ -179,10 +178,9 @@ export const Board = memo(function Board() {
       <SideButtons />
 
       <div
-        className={clsx(
-          `aspect-[14/10] max-w-full flex-auto transition-all`,
-          gameState === 'paused' ? 'grayscale' : 'grayscale-0'
-        )}
+        className="group/board aspect-[14/10] max-w-full flex-auto"
+        // Bubbles go uniform and hide bombs off this, so a pause can't be used to plan.
+        data-paused={gameState === 'paused' ? '' : undefined}
       >
         <svg
           role="graphics-symbol"

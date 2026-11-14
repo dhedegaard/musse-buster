@@ -34,28 +34,34 @@ function calcTransitionDuration(animation: Bubble['animation'], lastFallDelta: n
   }
 }
 
-const circleVariants = cva(styles['Circle'], {
-  variants: {
-    color: {
-      red: 'fill-rose-600',
-      blue: 'fill-sky-700',
-      green: 'fill-lime-500',
-      yellow: 'fill-amber-400',
+const circleVariants = cva(
+  [
+    styles['Circle'],
+    'group-data-paused/board:fill-slate-400 group-data-paused/board:stroke-transparent',
+  ],
+  {
+    variants: {
+      color: {
+        red: 'fill-rose-600',
+        blue: 'fill-sky-700',
+        green: 'fill-lime-500',
+        yellow: 'fill-amber-400',
+      },
+      type: {
+        normal: 'stroke-transparent',
+        bomb: 'stroke-black',
+      },
+      animation: {
+        spawning: 'animate-spawn',
+        'pushed-up': null,
+        fall: null,
+      },
     },
-    type: {
-      normal: 'stroke-transparent',
-      bomb: 'stroke-black',
+    defaultVariants: {
+      type: 'normal',
     },
-    animation: {
-      spawning: 'animate-spawn',
-      'pushed-up': null,
-      fall: null,
-    },
-  },
-  defaultVariants: {
-    type: 'normal',
-  },
-} as const)
+  } as const
+)
 interface CircleVariants extends Required<VariantProps<typeof circleVariants>> {}
 
 export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
@@ -122,7 +128,7 @@ export const BubbleCircle = memo(function Bubble({ bubble }: Props) {
           fontSize="0.6"
           className={clsx(
             styles['Circle'],
-            'pointer-events-none select-none',
+            'pointer-events-none select-none group-data-paused/board:hidden',
             bubble.animation === 'spawning' && 'animate-spawn'
           )}
           style={styleObject}
