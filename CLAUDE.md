@@ -7,7 +7,7 @@ npm ci              # Install dependencies (always use ci, not install)
 npx serve out       # Serve the production build (`npm run start` fails: next start doesn't support output: 'export')
 ```
 
-No test suite exists. Verify changes via `npm run lint`, `typecheck`, `format:check` and `build` (CI runs all four). To smoke-test a build, serve `out/` (`npx serve out -l <port>`) and drive it in a browser: `n` starts a game, `↑` adds a row.
+Verify changes via `npm run lint`, `typecheck`, `format:check`, `test` and `build` (CI runs all five). Vitest only covers the save merge (`src/stores/persisted-state.test.ts`); everything else is checked in a browser. To smoke-test a build, serve `out/` (`npx serve out -l <port>`) and drive it in a browser: `n` starts a game, `↑` adds a row.
 For before/after visual checks, seed `Math.random`/`crypto.randomUUID` and fake the clock, then diff computed styles as well as pixels. Bubble anti-aliasing and the progress bar differ between runs of the same build.
 Use real key presses (Playwright `keyboard.press`) when testing input: script-dispatched `KeyboardEvent`s never activate a focused button.
 To test persistence, write `{"state": {…}, "version": 0}` to localStorage key `musse-buster-v0`, reload, then press `n` and read the key back. Fields left out keep their initial values.
@@ -19,9 +19,9 @@ Bundle audit: `npx next analyze --output --snapshot <name>` then `npx next analy
 
 ### State (`src/stores/game-store.ts`)
 
-Single Zustand store (`useGameStore`) with `persist` middleware (localStorage key: `musse-buster-v0`), plus `devtools` in dev only via `withDevtools`, which is typed as identity so devtools-only API (`api.devtools`, `setState` action names) can't compile. zustand would otherwise enable devtools in production, since Next doesn't set `import.meta.env.MODE`. Persisted state is rehydrated without schema validation; a custom `merge` only derives `totalGames`, for saves from before it existed and after a rollback. Don't add a persist `version`: a rolled-back build seeing a newer version discards the whole save. Store actions orchestrate state mutations and delegate computation to `src/game-logic.ts` (pure, deterministic, no side effects). State machine: `'main-menu' | 'running' | 'paused' | 'game-over'`.
+Single Zustand store (`useGameStore`) with `persist` middleware (localStorage key: `musse-buster-v0`), plus `devtools` in dev only via `withDevtools`, which is typed as identity so devtools-only API (`api.devtools`, `setState` action names) can't compile. zustand would otherwise enable devtools in production, since Next doesn't set `import.meta.env.MODE`. A custom `merge` (`mergePersistedState` in `src/stores/persisted-state.ts`) validates the save part by part and keeps what's valid: a missing field gets its initial value, the game in progress is kept or dropped as one unit, bad old games are dropped one by one, and unknown keys are kept for rolled-back builds. Don't add a persist `version`: a rolled-back build seeing a newer version discards the whole save. Store actions orchestrate state mutations and delegate computation to `src/game-logic.ts` (pure, deterministic, no side effects). State machine: `'main-menu' | 'running' | 'paused' | 'game-over'`.
 
-`oldGames` holds the best 1000 scored games, not the latest. 0-score games are never saved or counted, and `totalGames` is a separate, uncapped count of scored games. zustand also calls `merge` with `undefined` on a first visit. A save whose `oldGames` isn't an array makes the page fail to load, because stored state isn't validated. This predates the `merge`.
+`oldGames` holds the best 1000 scored games, not the latest. 0-score games are never saved or counted, and `totalGames` is a separate, uncapped count of scored games. zustand also calls `merge` with `undefined` on a first visit.
 
 Key actions:
 
