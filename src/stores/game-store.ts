@@ -8,6 +8,7 @@ import {
   calcTickRate,
   findFloodFillGroup,
   isGameOver,
+  keepBestGames,
 } from '../game-logic'
 import { Bubble } from '../models/bubble'
 import { colorOptions } from '../models/color'
@@ -24,7 +25,19 @@ interface GameStore extends PersistedGameState {
   togglePause: () => void
 }
 
-const MAX_OLD_GAMES = 1000
+const SAVE_KEY = 'musse-buster-v0' as const
+const BACKUP_KEY = `${SAVE_KEY}-backup` as const
+
+// The cleaned state replaces the save on the next write, so keep the raw one to recover from. Each
+// drop overwrites it: the cleaned save no longer holds what was dropped, so the same problem can't.
+function backUpSave(persistedState: unknown) {
+  try {
+    localStorage.setItem(BACKUP_KEY, JSON.stringify({ state: persistedState, version: 0 }))
+  } catch (error: unknown) {
+    // eslint-disable-next-line no-console -- e.g. a full quota: the game still loads without it
+    console.error('Could not back up the save before dropping parts of it', error)
+  }
+}
 
 const identity = <S>(initializer: S): S => initializer
 
@@ -159,11 +172,7 @@ export const useGameStore = create<GameStore>()(
                 score: 0,
                 startedAt: now.toISOString(),
               } satisfies Game),
-              // Keep the best scores rather than the latest, so a cap can't evict a highscore.
-              // Also drops 0-score games stored before they stopped counting.
-              oldGames: [...played, ...state.oldGames.filter((game) => game.score > 0)]
-                .toSorted((a, b) => b.score - a.score)
-                .slice(0, MAX_OLD_GAMES),
+              oldGames: keepBestGames([...played, ...state.oldGames]),
               totalGames: state.totalGames + played.length,
             }
           })
@@ -203,7 +212,7 @@ export const useGameStore = create<GameStore>()(
         },
       }),
       {
-        name: 'musse-buster-v0',
+        name: SAVE_KEY,
         merge(persistedState, currentState) {
           const { state, dropped } = mergePersistedState(persistedState, currentState)
           if (dropped.length > 0) {
@@ -212,6 +221,7 @@ export const useGameStore = create<GameStore>()(
               `Dropped invalid parts of the save: ${dropped.map(({ part }) => part).join(', ')}`,
               dropped.map(({ error }) => error)
             )
+            backUpSave(persistedState)
           }
           return state
         },

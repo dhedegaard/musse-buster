@@ -1,4 +1,5 @@
 import * as z from 'zod/mini'
+import { keepBestGames } from '../game-logic'
 import { Bubble } from '../models/bubble'
 import { Game } from '../models/game'
 
@@ -41,6 +42,10 @@ export interface MergedState<S> {
   state: S
   dropped: readonly DroppedPart[]
 }
+
+// Keys only old builds wrote, so a future field with the same name can't pick up stale data.
+// `currentScore` was replaced by `currentGame` on the day persistence was added (Feb 2024).
+const RETIRED_KEYS: ReadonlySet<string> = new Set(['currentScore'])
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value != null && !Array.isArray(value)
@@ -91,22 +96,37 @@ export function mergePersistedState<S extends PersistedGameState>(
   }
 
   const savedCurrentGame = Game.safeParse(field('currentGame'), { reportInput: true })
+  // The game in progress plays on its current game's score (it sets the tick rate), so a board can't
+  // continue without it.
+  const keepInProgress =
+    inProgress.success && (savedCurrentGame.success || inProgress.data.gameState === 'main-menu')
   if (!savedCurrentGame.success) {
     dropped.push({ part: 'the current game', error: savedCurrentGame.error } satisfies DroppedPart)
+    if (inProgress.success && !keepInProgress) {
+      dropped.push({
+        part: 'the game in progress, as its current game is invalid',
+        error: savedCurrentGame.error,
+      } satisfies DroppedPart)
+    }
   }
 
   const savedOldGames = field('oldGames')
-  let oldGames: readonly Game[] = []
+  let validOldGames: readonly Game[] = []
   if (Array.isArray(savedOldGames)) {
-    const results = savedOldGames.map((game: unknown) =>
-      Game.safeParse(game, { reportInput: true })
+    const results = savedOldGames.map((game: unknown) => ({
+      game,
+      result: Game.safeParse(game, { reportInput: true }),
+    }))
+    // Fields a newer build added are kept: gameplay never rewrites an old game, so they survive a
+    // rollback here and are still there when that build comes back.
+    validOldGames = results.flatMap(({ game, result }) =>
+      result.success ? [isRecord(game) ? { ...game, ...result.data } : result.data] : []
     )
-    oldGames = results.flatMap((result) => (result.success ? [result.data] : []))
-    const firstFailure = results.find((result) => !result.success)
+    const firstFailure = results.find(({ result }) => !result.success)
     if (firstFailure != null) {
       dropped.push({
-        part: `${(savedOldGames.length - oldGames.length).toString()} of ${savedOldGames.length.toString()} old games`,
-        error: firstFailure.error,
+        part: `${(savedOldGames.length - validOldGames.length).toString()} of ${savedOldGames.length.toString()} old games`,
+        error: firstFailure.result.error,
       } satisfies DroppedPart)
     }
   } else {
@@ -120,19 +140,22 @@ export function mergePersistedState<S extends PersistedGameState>(
   // Older saves have no count, but their `oldGames` was still uncapped, so its scored games are the
   // exact count. A rolled-back build keeps the count but never adds to it, while it keeps adding to
   // an uncapped `oldGames`, so the larger of the two catches up on those games.
-  const scoredGames = oldGames.filter((game) => game.score > 0).length
+  // Counted before the cap below, which older saves haven't had applied yet.
+  const scoredGames = validOldGames.filter((game) => game.score > 0).length
   const totalGames = Math.max(savedTotalGames.success ? savedTotalGames.data : 0, scoredGames)
 
   const unknownKeys = Object.fromEntries(
-    Object.entries(persisted).filter(([key]) => !(key in current))
+    Object.entries(persisted).filter(([key]) => !(key in current) && !RETIRED_KEYS.has(key))
   )
   return {
     state: {
       ...current,
       ...unknownKeys,
-      ...(inProgress.success ? inProgress.data : {}),
+      ...(keepInProgress ? inProgress.data : {}),
       currentGame: savedCurrentGame.success ? savedCurrentGame.data : current.currentGame,
-      oldGames,
+      // Older saves are uncapped and may hold 0-score games; trim them as reset() would, so they
+      // aren't rewritten in full on every tick until the next new game.
+      oldGames: keepBestGames(validOldGames),
       totalGames,
     },
     dropped,

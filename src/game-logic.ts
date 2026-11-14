@@ -1,7 +1,19 @@
 import { Bubble } from './models/bubble'
 import { BOARD_HEIGHT } from './models/consts'
+import type { Game } from './models/game'
 
-export const INITIAL_TICK_RATE = 5200
+export const INITIAL_TICK_RATE = 5200 as const
+
+export const MAX_OLD_GAMES = 1000 as const
+
+// The stored history: the best scores rather than the latest, so the cap can't evict a highscore.
+// 0-score games (never started, or abandoned before scoring) don't count as played and aren't kept.
+export function keepBestGames<T extends Game>(games: readonly T[]): T[] {
+  return games
+    .filter((game) => game.score > 0)
+    .toSorted((a, b) => b.score - a.score)
+    .slice(0, MAX_OLD_GAMES)
+}
 
 export function calcGroupScore(n: number): number {
   return n + (n - 2) ** 2
