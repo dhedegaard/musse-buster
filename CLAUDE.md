@@ -36,8 +36,6 @@ Zod schemas (imported from `zod/mini`) define both schema and TypeScript interfa
 ### UI (`src/app/`, `src/components/`)
 
 - `board.tsx` — client component, `requestAnimationFrame` game loop, auto-pauses on tab hide, renders SVG grid
-  - In `running`/`paused`: `p`/space=togglePause, `n`=reset, `↑`=debug add line
-  - In `game-over`/`main-menu`: `n`/space=reset
   - The keydown listener is deliberately non-passive: it calls `preventDefault()` on `CLAIMED_KEYS` so space doesn't also activate a focused button, and it ignores `event.repeat`.
 - Layout is desktop-only: the board is `w-[60vh]` and the score/button panels sit outside it (`right-full`/`left-full`), so on a phone the board is clipped and the panels are off-screen.
 - `bottom-bar.tsx` — tick-progress bar driven by `useGameStore.subscribe()` + Web Animations API directly, bypassing React's render cycle entirely; no re-renders on tick updates
@@ -49,9 +47,8 @@ Zod schemas (imported from `zod/mini`) define both schema and TypeScript interfa
 
 - **Exhaustive switches**: Use `switch` with `default: assertNever(value)` for all union type branching (game state, bubble type). `assertNever` (from `src/utils.ts`) accepts `never` and throws a `TypeError` — this enforces exhaustive handling at compile time and runtime.
 - **Logging**: `no-console` is `error`. A deliberate log needs `// eslint-disable-next-line no-console -- <reason>`.
-- **Strict TypeScript**: Config extends `@tsconfig/strictest`; ESLint uses `typescript-eslint` `strictTypeChecked`. The code style is explicit null checks (`x == null`), but no lint rule enforces strict boolean expressions.
+- **Strict TypeScript**: The code style is explicit null checks (`x == null`), but no lint rule enforces strict boolean expressions.
 - **Explicit types**: module constants get `as const`, and catch clauses are written `catch (error: unknown)`.
 - **Zod imports**: Use `import * as z from 'zod/mini'` (wildcard import for correct tree-shaking).
 - **Module-level constants**: Hoist stable event handlers and static values to module scope rather than using `useCallback(fn, [])` inside components. See `preventContextMenu`, `handleKeyDown`, `handleVisibilityChange` in `board.tsx`.
 - **daisyUI**: `src/globals/styles.css` limits daisyUI via `include:` (internal names from `node_modules/daisyui/components/`, e.g. `button` not `btn`, plus the base styles `properties`, `rootcolor`, …). A new daisyUI component must be added there; `better-tailwindcss/no-unknown-classes` fails lint if it isn't.
-- **Formatting**: Prettier with `prettier-plugin-tailwindcss`. 100-char line width, 2-space indent, `trailingComma: "es5"`, single quotes (CSS/YAML too).
